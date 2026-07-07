@@ -1,0 +1,95 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #ffffff;
+    --bg-subtle: #f9fafb;
+    --bg-muted: #f3f4f6;
+    --border: #e5e7eb;
+    --border-subtle: #f3f4f6;
+    --text: #111827;
+    --text-muted: #6b7280;
+    --text-subtle: #9ca3af;
+    --brand: #f97316;
+    --brand-subtle: #fff7ed;
+    --sidebar-w: 272px;
+    --toc-w: 220px;
+    --topbar-h: 56px;
+  }
+  .dark {
+    --bg: #0f1117;
+    --bg-subtle: #161b27;
+    --bg-muted: #1e2533;
+    --border: #1f2937;
+    --border-subtle: #1a2130;
+    --text: #f3f4f6;
+    --text-muted: #9ca3af;
+    --text-subtle: #6b7280;
+    --brand-subtle: #1c1007;
+  }
+  * { border-color: var(--border); }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: #f9731640; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-subtle); }
+
+/* Code blocks from rehype-pretty-code */
+[data-rehype-pretty-code-figure] {
+  @apply rounded-lg overflow-hidden border border-[--border] my-4 text-sm;
+}
+[data-rehype-pretty-code-figure] pre {
+  @apply bg-[--bg-subtle] dark:bg-[--bg-muted] overflow-x-auto p-4 leading-relaxed;
+}
+[data-rehype-pretty-code-title] {
+  @apply text-xs font-medium text-[--text-muted] bg-[--bg-muted] dark:bg-[--bg-subtle] px-4 py-2.5 border-b border-[--border] font-mono;
+}
+[data-rehype-pretty-code-caption] {
+  @apply text-xs text-[--text-subtle] px-4 py-1.5 border-t border-[--border] bg-[--bg-muted];
+}
+[data-line-numbers] [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  @apply inline-block w-6 mr-4 text-right text-[--text-subtle] text-xs select-none;
+}
+[data-highlighted-line] { @apply bg-brand-500/10 -mx-4 px-4; }
+[data-highlighted-chars] { @apply bg-brand-500/20 rounded px-0.5; }
+
+/* Inline code */
+:not(pre) > code {
+  @apply bg-[--bg-muted] text-brand-600 dark:text-brand-400 rounded px-1.5 py-0.5 text-[0.85em] font-mono;
+}
+
+/* Prose tweaks */
+.prose h1 { @apply text-3xl font-bold tracking-tight text-[--text] mt-0; }
+.prose h2 { @apply text-xl font-semibold text-[--text] mt-10 mb-4 pb-2 border-b border-[--border]; }
+.prose h3 { @apply text-base font-semibold text-[--text] mt-7 mb-3; }
+.prose h4 { @apply text-sm font-semibold text-[--text] mt-5 mb-2; }
+.prose p  { @apply text-[--text-muted] leading-7; }
+.prose li { @apply text-[--text-muted]; }
+.prose table { @apply text-sm; }
+.prose th { @apply font-semibold text-[--text] bg-[--bg-subtle] text-left; }
+.prose td { @apply text-[--text-muted]; }
+.prose a { @apply text-brand-500 hover:text-brand-600 no-underline hover:underline; }
+.prose blockquote { @apply border-l-brand-500 text-[--text-muted] not-italic; }
+
+/* Heading anchor links */
+.prose h2 a, .prose h3 a, .prose h4 a {
+  @apply text-inherit no-underline;
+}
+.prose h2:hover a::after, .prose h3:hover a::after, .prose h4:hover a::after {
+  content: " #";
+  @apply text-[--text-subtle];
+}

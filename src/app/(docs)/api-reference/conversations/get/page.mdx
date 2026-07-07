@@ -1,0 +1,48 @@
+export const metadata = { title: "Get Conversation", description: "Return all messages in a specific conversation thread." }
+
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Get Conversation
+
+<ApiEndpointBadge method="GET" path="/api/v1/conversations/{session_id}" />
+
+Fetch the complete ordered message history for a single conversation session.
+
+**Required scope:** `read`
+
+## Path parameters
+
+<ParamField path="session_id" type="string" required>The conversation session identifier.</ParamField>
+
+## Response
+
+<ResponseField name="session_id" type="string">The session identifier.</ResponseField>
+<ResponseField name="messages" type="array">All messages in the session, oldest to newest. Each has `id`, `role`, `content`, `feedback_rating`, `created_at`.</ResponseField>
+
+## Example
+
+```bash title="cURL"
+curl "https://personaliai-api-376030619262.us-central1.run.app/api/v1/conversations/visitor-xyz-789" \
+  -H "Authorization: Bearer chatty_sk_your_key"
+```
+
+**200 OK:**
+```json
+{
+  "session_id": "visitor-xyz-789",
+  "messages": [
+    { "id": "msg-010", "role": "user", "content": "Hi, do you have enterprise plans?", "feedback_rating": null, "created_at": "2026-07-06T14:20:00Z" },
+    { "id": "msg-011", "role": "assistant", "content": "Yes! Our Enterprise plan includes unlimited bots, SSO, and dedicated support.", "feedback_rating": "up", "created_at": "2026-07-06T14:20:03Z" }
+  ]
+}
+```
+
+**404 — session not found:**
+```json
+{ "detail": "Session not found or belongs to a different bot" }
+```
+
+<PageNav {...prevNext("/api-reference/conversations/get")} />

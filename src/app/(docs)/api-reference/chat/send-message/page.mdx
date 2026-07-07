@@ -1,0 +1,104 @@
+export const metadata = { title: "Send a Message", description: "Send a text message to the bot and receive an AI reply." }
+
+import { Note, Tip } from "@/components/mdx/Callout"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Send a Message
+
+<ApiEndpointBadge method="POST" path="/api/v1/chat" />
+
+Send a message to your bot and get an AI reply based on its knowledge base, guardrails, and language settings. The bot maintains full conversation history within a `session_id`.
+
+**Required scope:** `chat`
+
+## Request body
+
+<ParamField body="text" type="string" required>
+  The user's message. Max 4,000 characters. Control characters are stripped automatically.
+</ParamField>
+
+<ParamField body="session_id" type="string">
+  Conversation thread identifier. Omit to start a new session — the generated ID is returned in the response. Reuse the same ID to continue an existing conversation.
+</ParamField>
+
+<ParamField body="visitor_timezone" type="string" default="UTC">
+  IANA timezone of the visitor (e.g. `"America/New_York"`). Used by the bot for time-sensitive questions.
+</ParamField>
+
+## Response
+
+<ResponseField name="reply" type="string">
+  The bot's text reply.
+</ResponseField>
+
+<ResponseField name="session_id" type="string">
+  The session ID. Pass this back in your next request to continue the thread.
+</ResponseField>
+
+## Examples
+
+```bash title="cURL"
+curl -X POST https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat \
+  -H "Authorization: Bearer chatty_sk_your_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Do you offer a free trial?",
+    "session_id": "visitor-xyz-789",
+    "visitor_timezone": "America/Chicago"
+  }'
+```
+
+```python title="Python"
+import httpx
+
+r = httpx.post(
+    "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+    headers={"Authorization": "Bearer chatty_sk_your_key"},
+    json={"text": "Do you offer a free trial?", "session_id": "visitor-xyz-789"},
+)
+print(r.json()["reply"])
+```
+
+```javascript title="Node.js"
+const res = await fetch(
+  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+  {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer chatty_sk_your_key",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text: "Do you offer a free trial?", session_id: "visitor-xyz-789" }),
+  }
+);
+const { reply, session_id } = await res.json();
+```
+
+```go title="Go"
+body, _ := json.Marshal(map[string]string{
+    "text":       "Do you offer a free trial?",
+    "session_id": "visitor-xyz-789",
+})
+req, _ := http.NewRequest("POST",
+    "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+    bytes.NewBuffer(body))
+req.Header.Set("Authorization", "Bearer chatty_sk_your_key")
+req.Header.Set("Content-Type", "application/json")
+```
+
+**200 OK:**
+```json
+{
+  "reply": "Yes! We offer a 14-day free trial on all paid plans — no credit card required.",
+  "session_id": "visitor-xyz-789"
+}
+```
+
+<Tip>
+  To reset a conversation, call `DELETE /api/v1/conversations/{session_id}` — the next message with the same `session_id` starts fresh.
+</Tip>
+
+<PageNav {...prevNext("/api-reference/chat/send-message")} />

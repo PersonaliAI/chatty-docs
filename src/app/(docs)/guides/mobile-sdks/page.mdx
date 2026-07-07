@@ -1,0 +1,126 @@
+export const metadata = { title: "Mobile SDKs", description: "Add Chatty to iOS and Android apps." }
+
+import { Note, Warning } from "@/components/mdx/Callout"
+import { Card, CardGroup } from "@/components/mdx/Card"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Mobile SDKs
+
+Add the Chatty chat experience to iOS and Android apps with our native SDKs.
+
+<Note>Mobile SDKs are currently in **beta**. The API is stable but binary size and threading behaviour may change before GA.</Note>
+
+## iOS
+
+### Installation
+
+**Swift Package Manager** (recommended):
+
+```swift title="Package.swift"
+.package(url: "https://github.com/personaliai/chatty-ios", from: "0.9.0")
+```
+
+Or via Xcode: **File → Add Packages** → search `chatty-ios`.
+
+### Usage
+
+```swift title="AppDelegate.swift"
+import ChattySDK
+
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+  func application(_ application: UIApplication, didFinishLaunchingWithOptions ...) -> Bool {
+    Chatty.configure(botId: "YOUR_BOT_ID")
+    return true
+  }
+}
+```
+
+```swift title="Show the chat UI"
+import ChattySDK
+import UIKit
+
+class SupportViewController: UIViewController {
+  @IBAction func openChat(_ sender: Any) {
+    let chatVC = ChattyViewController()
+    chatVC.sessionId = "user-\(currentUser.id)"       // optional
+    chatVC.userName  = currentUser.displayName         // skips lead form
+    chatVC.userEmail = currentUser.email
+    present(chatVC, animated: true)
+  }
+}
+```
+
+### Permissions
+
+The SDK requires no special `Info.plist` permissions for basic chat. If you enable attachment uploads, add `NSPhotoLibraryUsageDescription`.
+
+---
+
+## Android
+
+### Installation
+
+Add to your module-level `build.gradle`:
+
+```groovy title="build.gradle (app)"
+dependencies {
+    implementation("com.personaliai:chatty-android:0.9.0")
+}
+```
+
+### Usage
+
+```kotlin title="Application class"
+import com.personaliai.chatty.Chatty
+
+class MyApp : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        Chatty.configure(context = this, botId = "YOUR_BOT_ID")
+    }
+}
+```
+
+```kotlin title="Open chat from an Activity"
+import com.personaliai.chatty.ChattyActivity
+
+// Launch full-screen chat
+ChattyActivity.launch(
+    context   = this,
+    sessionId = "user-${currentUser.id}",  // optional
+    userName  = currentUser.displayName,
+    userEmail = currentUser.email,
+)
+```
+
+### ProGuard
+
+If you use R8/ProGuard, add:
+```
+-keep class com.personaliai.chatty.** { *; }
+```
+
+---
+
+## Passing session context
+
+Both SDKs accept the same session parameters as the web widget:
+
+| Parameter | Description |
+|---|---|
+| `sessionId` | Pins the conversation to a specific session (for logged-in users). |
+| `userName` | Pre-fills visitor name — bypasses the lead-capture name field. |
+| `userEmail` | Pre-fills visitor email. |
+
+<Warning>Never include the visitor's password or payment info in session context — these values appear in the bot's session metadata.</Warning>
+
+## What's next
+
+<CardGroup cols={2}>
+  <Card title="Webhooks" href="/guides/webhooks">Receive lead and message events server-side.</Card>
+  <Card title="BYOK" href="/guides/byok">Use your own AI model API key.</Card>
+</CardGroup>
+
+<PageNav {...prevNext("/guides/mobile-sdks")} />

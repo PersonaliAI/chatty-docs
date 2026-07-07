@@ -1,0 +1,81 @@
+export const metadata = { title: "List Leads", description: "Return leads captured by the bot, most recent first." }
+
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { Expandable } from "@/components/mdx/Expandable"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# List Leads
+
+<ApiEndpointBadge method="GET" path="/api/v1/leads" />
+
+Returns visitor leads captured through the bot's lead collection flow — typically name, email, phone, and custom fields.
+
+**Required scope:** `read`
+
+## Query parameters
+
+<ParamField query="limit" type="integer" default="50">Number of leads to return. Min 1, max 200.</ParamField>
+<ParamField query="offset" type="integer" default="0">Zero-based offset for pagination.</ParamField>
+
+## Response
+
+<ResponseField name="leads" type="array">
+  Array of lead objects.
+  <Expandable title="Lead object fields">
+    <ResponseField name="id" type="string">UUID of the lead.</ResponseField>
+    <ResponseField name="bot_id" type="string">Bot that captured this lead.</ResponseField>
+    <ResponseField name="session_id" type="string">Conversation session where the lead was captured.</ResponseField>
+    <ResponseField name="name" type="string">Visitor's name (if collected).</ResponseField>
+    <ResponseField name="email" type="string">Visitor's email (if collected).</ResponseField>
+    <ResponseField name="phone" type="string">Visitor's phone (if collected).</ResponseField>
+    <ResponseField name="extra" type="object">Any additional collected fields.</ResponseField>
+    <ResponseField name="created_at" type="string">ISO 8601 timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="total" type="integer">Total leads for this bot across all pages.</ResponseField>
+<ResponseField name="limit" type="integer">Limit used in this request.</ResponseField>
+<ResponseField name="offset" type="integer">Offset used in this request.</ResponseField>
+
+## Example
+
+```bash title="cURL"
+curl "https://personaliai-api-376030619262.us-central1.run.app/api/v1/leads?limit=20" \
+  -H "Authorization: Bearer chatty_sk_your_key"
+```
+
+```python title="Python — paginate all"
+import httpx
+client = httpx.Client(base_url="https://personaliai-api-376030619262.us-central1.run.app",
+                      headers={"Authorization": "Bearer chatty_sk_your_key"})
+all_leads, offset = [], 0
+while True:
+    data = client.get("/api/v1/leads", params={"limit": 100, "offset": offset}).json()
+    all_leads.extend(data["leads"])
+    if len(all_leads) >= data["total"]: break
+    offset += 100
+```
+
+**200 OK:**
+```json
+{
+  "leads": [
+    {
+      "id": "ld_001abc",
+      "bot_id": "a1b2c3d4-...",
+      "session_id": "visitor-xyz-789",
+      "name": "Sarah Chen",
+      "email": "sarah@example.com",
+      "phone": "+1-555-0123",
+      "extra": { "company": "Acme Corp" },
+      "created_at": "2026-07-06T14:23:11Z"
+    }
+  ],
+  "total": 247,
+  "limit": 20,
+  "offset": 0
+}
+```
+
+<PageNav {...prevNext("/api-reference/leads/list")} />

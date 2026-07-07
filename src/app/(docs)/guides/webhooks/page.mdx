@@ -1,0 +1,112 @@
+export const metadata = { title: "Webhooks", description: "Receive real-time events from Chatty to your server." }
+
+import { Note, Tip, Warning } from "@/components/mdx/Callout"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Webhooks
+
+Chatty can POST a JSON payload to your server whenever a key event occurs — no polling required.
+
+## Registering a webhook
+
+Go to **Dashboard → Settings → Webhooks** and add your endpoint URL. You can also use the API:
+
+```bash title="Register via API"
+curl -X POST \
+  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/webhooks" \
+  -H "Authorization: Bearer chatty_sk_your_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-server.com/chatty-webhook",
+    "events": ["lead.created", "message.assistant"]
+  }'
+```
+
+## Events
+
+| Event | Trigger |
+|---|---|
+| `lead.created` | A new lead is captured by the bot. |
+| `message.user` | A visitor sends a message. |
+| `message.assistant` | The bot replies. |
+| `session.started` | First message in a new session. |
+| `session.ended` | Session inactive for 30 minutes. |
+
+## Payload format
+
+Every webhook POST has the same envelope:
+
+```json
+{
+  "event": "lead.created",
+  "bot_id": "a1b2c3d4-...",
+  "session_id": "visitor-xyz-789",
+  "timestamp": "2026-07-07T12:34:56Z",
+  "data": { ... }
+}
+```
+
+### `lead.created` data
+
+```json
+{
+  "id": "ld_001abc",
+  "name": "Sarah Chen",
+  "email": "sarah@example.com",
+  "phone": "+1-555-0123",
+  "extra": {}
+}
+```
+
+### `message.assistant` data
+
+```json
+{
+  "message_id": "msg-uuid-011",
+  "role": "assistant",
+  "content": "Yes! Our Enterprise plan includes unlimited bots, SSO, and dedicated support.",
+  "latency_ms": 820
+}
+```
+
+## Signature verification
+
+Every request includes an `X-Chatty-Signature` header — an HMAC-SHA256 of the raw request body signed with your webhook secret.
+
+```python title="Python — verify signature"
+import hmac, hashlib
+
+def verify(payload: bytes, signature: str, secret: str) -> bool:
+    expected = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, signature)
+```
+
+```typescript title="Node.js — verify signature"
+import crypto from "crypto"
+
+function verify(payload: Buffer, signature: string, secret: string): boolean {
+  const expected = crypto.createHmac("sha256", secret)
+    .update(payload).digest("hex")
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature))
+}
+```
+
+<Warning>Always verify the signature before processing the payload. Reject requests where verification fails with a `401` response.</Warning>
+
+## Retries
+
+Chatty retries failed deliveries (non-2xx or timeout) with exponential back-off: after 1s, 5s, 30s, 5min, 30min, 2h, 8h. After 7 attempts the event is dropped.
+
+<Tip>Return a `200` as fast as possible — offload processing to a queue. Webhooks time out after **10 seconds**.</Tip>
+
+## Testing locally
+
+Use a tunnel like [ngrok](https://ngrok.com) or [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) to expose your local server:
+
+```bash
+ngrok http 3000
+# Chatty webhook URL: https://abc123.ngrok.io/chatty-webhook
+```
+
+<PageNav {...prevNext("/guides/webhooks")} />

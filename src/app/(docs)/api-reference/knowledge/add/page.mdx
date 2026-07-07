@@ -1,0 +1,69 @@
+export const metadata = { title: "Add Knowledge Source", description: "Add a text snippet or URL as a knowledge source." }
+
+import { Note } from "@/components/mdx/Callout"
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Add Knowledge Source
+
+<ApiEndpointBadge method="POST" path="/api/v1/knowledge" />
+
+Add a text snippet or a URL to the bot's knowledge base. URL sources are fetched and indexed automatically.
+
+**Required scope:** `write`
+
+<Note>URL sources may take a few seconds to process. Check the `status` field via **List Knowledge Sources** to confirm indexing completed.</Note>
+
+## Request body
+
+<ParamField body="type" type="string" required>
+  `"text"` to add raw text, or `"url"` to crawl and index a web page.
+</ParamField>
+<ParamField body="content" type="string" required>
+  For `"text"`: the text content to add (max 50,000 chars).
+  For `"url"`: the fully-qualified URL to crawl (must start with `https://`).
+</ParamField>
+<ParamField body="title" type="string">
+  Optional human-readable label. Defaults to the URL or the first 80 characters of text.
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">UUID of the newly created source.</ResponseField>
+<ResponseField name="status" type="string">`"ready"` for text sources; `"processing"` for URL sources until indexed.</ResponseField>
+<ResponseField name="message" type="string">Confirmation message.</ResponseField>
+
+## Examples
+
+```bash title="Add text snippet"
+curl -X POST \
+  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/knowledge" \
+  -H "Authorization: Bearer chatty_sk_your_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "text",
+    "title": "Return Policy",
+    "content": "We offer a 30-day money-back guarantee on all purchases. To request a refund, email support@acme.com with your order number."
+  }'
+```
+
+```bash title="Add URL"
+curl -X POST \
+  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/knowledge" \
+  -H "Authorization: Bearer chatty_sk_your_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "type": "url", "content": "https://acme.com/docs/faq" }'
+```
+
+**201 Created:**
+```json
+{
+  "id": "ks-uuid-003",
+  "status": "processing",
+  "message": "URL queued for indexing"
+}
+```
+
+<PageNav {...prevNext("/api-reference/knowledge/add")} />

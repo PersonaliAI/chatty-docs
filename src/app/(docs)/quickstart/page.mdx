@@ -1,0 +1,105 @@
+export const metadata = { title: "Quickstart", description: "Make your first Chatty API call in under 5 minutes." }
+
+import { Note, Tip } from "@/components/mdx/Callout"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Quickstart
+
+## 1. Create a bot
+
+Log in to the [Chatty Dashboard](https://chatty.ai/dashboard) and create a new bot. Train it with a few URLs or text snippets.
+
+## 2. Generate an API key
+
+Go to **Settings → API Keys** and click **New Key**.
+
+<Note>
+  The API key is shown **once** — copy it immediately. If you lose it, revoke and generate a new one.
+</Note>
+
+Your key looks like: `chatty_sk_a3f9b2c1d8e4f5g6...`
+
+## 3. Make your first call
+
+```bash title="cURL"
+curl -X POST https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat \
+  -H "Authorization: Bearer chatty_sk_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Hello! What can you help me with?",
+    "session_id": "quickstart-1"
+  }'
+```
+
+```python title="Python"
+import httpx
+
+response = httpx.post(
+    "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+    headers={"Authorization": "Bearer chatty_sk_your_key_here"},
+    json={"text": "Hello!", "session_id": "quickstart-1"},
+)
+print(response.json()["reply"])
+```
+
+```javascript title="Node.js"
+const res = await fetch(
+  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+  {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer chatty_sk_your_key_here",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text: "Hello!", session_id: "quickstart-1" }),
+  }
+);
+const { reply, session_id } = await res.json();
+console.log(reply);
+```
+
+```php title="PHP"
+$ch = curl_init();
+curl_setopt_array($ch, [
+    CURLOPT_URL => "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer chatty_sk_your_key_here",
+        "Content-Type: application/json",
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        "text" => "Hello!",
+        "session_id" => "quickstart-1",
+    ]),
+]);
+$data = json_decode(curl_exec($ch), true);
+echo $data["reply"];
+```
+
+## 4. The response
+
+```json
+{
+  "reply": "Hi! I'm your AI assistant. I can help with product questions, pricing, support, and more. What would you like to know?",
+  "session_id": "quickstart-1"
+}
+```
+
+<Tip>
+  **Save your `session_id`!** Pass the same ID in every subsequent request to continue the conversation. The bot remembers the full history within a session.
+</Tip>
+
+## 5. Continue the conversation
+
+```bash
+curl -X POST https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat \
+  -H "Authorization: Bearer chatty_sk_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Tell me about pricing.", "session_id": "quickstart-1"}'
+```
+
+The bot replies with full context of the prior exchange.
+
+<PageNav {...prevNext("/quickstart")} />

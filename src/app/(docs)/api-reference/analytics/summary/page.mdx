@@ -1,0 +1,58 @@
+export const metadata = { title: "Analytics Summary", description: "Return aggregated usage metrics for the bot." }
+
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Analytics Summary
+
+<ApiEndpointBadge method="GET" path="/api/v1/analytics" />
+
+Returns aggregated metrics — message counts, session counts, and lead counts — for the bot over a given time range.
+
+**Required scope:** `read`
+
+## Query parameters
+
+<ParamField query="since" type="string">
+  ISO 8601 datetime string. Only events on or after this timestamp are counted. Defaults to 30 days ago.
+
+  Example: `2026-07-01T00:00:00Z`
+</ParamField>
+
+## Response
+
+<ResponseField name="since" type="string">The start of the analytics window (ISO 8601).</ResponseField>
+<ResponseField name="total_messages" type="integer">All messages (user + assistant) in the period.</ResponseField>
+<ResponseField name="total_sessions" type="integer">Unique conversation sessions started.</ResponseField>
+<ResponseField name="total_leads" type="integer">Leads captured by the bot.</ResponseField>
+
+## Examples
+
+```bash title="Last 30 days (default)"
+curl "https://personaliai-api-376030619262.us-central1.run.app/api/v1/analytics" \
+  -H "Authorization: Bearer chatty_sk_your_key"
+```
+
+```bash title="Since July 1"
+curl "https://personaliai-api-376030619262.us-central1.run.app/api/v1/analytics?since=2026-07-01T00:00:00Z" \
+  -H "Authorization: Bearer chatty_sk_your_key"
+```
+
+**200 OK:**
+```json
+{
+  "since": "2026-06-07T00:00:00Z",
+  "total_messages": 4821,
+  "total_sessions": 962,
+  "total_leads": 147
+}
+```
+
+## Notes
+
+- Counts update in near real-time (typically within a few seconds of each event).
+- For daily or hourly breakdowns, use the **Usage Stats** endpoint which provides per-day granularity.
+
+<PageNav {...prevNext("/api-reference/analytics/summary")} />

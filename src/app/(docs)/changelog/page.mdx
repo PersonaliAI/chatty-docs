@@ -1,0 +1,88 @@
+export const metadata = { title: "Changelog", description: "What's new in Chatty." }
+
+import { Note } from "@/components/mdx/Callout"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Changelog
+
+Release notes for the Chatty platform and API.
+
+---
+
+## July 2026
+
+### 2026-07-07 — API v1 security & new endpoints
+
+**Security hardening**
+- Per-key scopes: `chat`, `read`, `write`, `admin`. Keys default to `chat,read`. Admin scope satisfies any scope check.
+- IP allowlist per API key (CIDR or exact IP supported via the `allowed_ips` field).
+- Sliding-window rate limits: 120 req/min per IP, 60 req/min per key.
+- Audit log: every public API call is written to `chatty_api_audit_log` with key, bot, endpoint, method, IP, request ID, status code, and latency.
+- Security headers on all responses: CSP `default-src 'none'`, HSTS with preload, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`.
+- `X-Request-ID` header echoed or generated on every response.
+
+**New endpoints**
+- `GET /api/v1/conversations/{session_id}` — fetch a single thread
+- `DELETE /api/v1/conversations/{session_id}` — clear a session
+- `GET /api/v1/knowledge` — list knowledge sources
+- `POST /api/v1/knowledge` — add text or URL source
+- `DELETE /api/v1/knowledge/{source_id}` — remove a source
+- `GET /api/v1/analytics` — aggregated message/session/lead totals
+- `PATCH /api/v1/api-keys/{key_id}` — update key name, scopes, or IP allowlist
+
+**API key management**
+- `POST /api/v1/api-keys` now accepts `scopes` and `allowed_ips` fields.
+- `GET /api/v1/api-keys` now returns `scopes` and `allowed_ips` per key.
+
+---
+
+### 2026-07-07 — 90+ language support
+
+- Response language selector expanded from 8 to 90+ languages with regional variants.
+- Languages grouped by region in the dashboard dropdown.
+- Auto-mirror mode (default) detects visitor language per message.
+- Force a specific language via the `response_language` bot setting or `response_language` chat request parameter.
+
+---
+
+## June 2026
+
+### 2026-06-28 — BYOK (Bring Your Own Key)
+
+- Support for customer-owned API keys for OpenAI, Anthropic, Google Gemini, and OpenRouter.
+- Keys encrypted at rest with AES-256-GCM.
+- Write-only: stored key is never returned to the client.
+- Remove key at any time to revert to Chatty's shared inference pool.
+
+---
+
+### 2026-06-15 — Webhooks
+
+- Bot-level webhook endpoints: register URLs to receive `lead.created`, `message.user`, `message.assistant`, `session.started`, `session.ended` events.
+- HMAC-SHA256 payload signing with your webhook secret.
+- Automatic retry with exponential back-off (7 attempts over ~8 hours).
+
+---
+
+### 2026-06-04 — Analytics dashboard & scheduling
+
+- **Analytics tab** in the dashboard with message counts, session counts, lead counts, and thumbs up/down feedback rates.
+- **Scheduled Knowledge crawls** — set hourly/daily/weekly re-crawl for URL sources.
+- **Google Drive & OneDrive sync** — auto-retrain when connected documents change.
+- **Guardrails panel** — configure topic restrictions and fallback messages.
+- **Custom CSS/JS injection** — per-bot style and script overrides for the widget.
+
+---
+
+### 2026-05-20 — Chat API v1
+
+- First public API release: `POST /api/v1/chat`, `GET /api/v1/bot`, `GET /api/v1/leads`, `GET /api/v1/conversations`, `GET /api/v1/usage`.
+- API key management endpoints in the dashboard and via API.
+- OpenAPI documentation at `/docs` and `/redoc`.
+
+---
+
+<Note>Looking for a feature? Join the [Discord community](https://discord.gg/personaliai) or email [support@personaliai.com](mailto:support@personaliai.com).</Note>
+
+<PageNav {...prevNext("/changelog")} />

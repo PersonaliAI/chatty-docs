@@ -1,0 +1,116 @@
+export const metadata = { title: "Embed the Widget", description: "Add the Chatty chat widget to any website in under 2 minutes." }
+
+import { Note, Tip } from "@/components/mdx/Callout"
+import { Card, CardGroup } from "@/components/mdx/Card"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Embed the Widget
+
+Add your bot to any website with a single `<script>` tag — no framework required.
+
+## Get your embed code
+
+1. Open the [Chatty dashboard](https://chatty.personaliai.com/dashboard)
+2. Select your bot → **Embed**
+3. Copy the snippet
+
+```html title="Paste before </body>"
+<script
+  src="https://cdn.personaliai.com/widget.js"
+  data-bot-id="YOUR_BOT_ID"
+  async
+></script>
+```
+
+That's it. The widget appears in the bottom-right corner of every page.
+
+<Note>Replace `YOUR_BOT_ID` with the ID shown in the Embed tab of your dashboard.</Note>
+
+## Configuration attributes
+
+Customize behavior with `data-*` attributes on the script tag:
+
+| Attribute | Default | Description |
+|---|---|---|
+| `data-bot-id` | — | **Required.** Your bot's unique ID. |
+| `data-position` | `"bottom-right"` | Widget position: `bottom-right` or `bottom-left`. |
+| `data-primary-color` | Bot default | Override accent color (hex, e.g. `#6366f1`). |
+| `data-open` | `false` | Start the widget open. |
+| `data-hide-launcher` | `false` | Hide the bubble — control visibility via JS API. |
+| `data-session-id` | Auto-generated | Pin a specific session (for logged-in users). |
+| `data-user-name` | — | Pre-fill visitor name (skips lead capture). |
+| `data-user-email` | — | Pre-fill visitor email. |
+
+```html title="Full example with options"
+<script
+  src="https://cdn.personaliai.com/widget.js"
+  data-bot-id="a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  data-position="bottom-left"
+  data-primary-color="#6366f1"
+  data-session-id="user-{{ current_user.id }}"
+  data-user-name="{{ current_user.name }}"
+  data-user-email="{{ current_user.email }}"
+  async
+></script>
+```
+
+## JavaScript API
+
+After the widget loads, control it programmatically via `window.Chatty`:
+
+```javascript
+// Open or close the widget
+window.Chatty.open()
+window.Chatty.close()
+window.Chatty.toggle()
+
+// Listen for events
+window.Chatty.on('message', (msg) => {
+  console.log('Bot replied:', msg.content)
+})
+window.Chatty.on('lead', (lead) => {
+  // lead.email, lead.name, lead.phone
+  myAnalytics.track('chatty_lead', lead)
+})
+```
+
+## Framework snippets
+
+<Tip>The widget script is framework-agnostic. These snippets just show where to put it.</Tip>
+
+```jsx title="Next.js — app/layout.tsx"
+import Script from "next/script"
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Script
+          src="https://cdn.personaliai.com/widget.js"
+          data-bot-id={process.env.NEXT_PUBLIC_CHATTY_BOT_ID}
+          strategy="lazyOnload"
+        />
+      </body>
+    </html>
+  )
+}
+```
+
+```html title="WordPress — footer.php"
+<?php /* Add to your theme's footer.php before </body> */ ?>
+<script
+  src="https://cdn.personaliai.com/widget.js"
+  data-bot-id="YOUR_BOT_ID"
+  async
+></script>
+```
+
+## What's next
+
+<CardGroup cols={2}>
+  <Card title="Mobile SDKs" href="/guides/mobile-sdks">Native iOS and Android integration.</Card>
+  <Card title="Webhooks" href="/guides/webhooks">Push events to your backend in real time.</Card>
+</CardGroup>
+
+<PageNav {...prevNext("/guides/embed-widget")} />

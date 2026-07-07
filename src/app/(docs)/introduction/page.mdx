@@ -1,0 +1,71 @@
+export const metadata = { title: "Introduction", description: "Build powerful AI chat experiences with the Chatty API." }
+
+import { Card, CardGroup } from "@/components/mdx/Card"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Introduction
+
+**Chatty** is an AI chatbot platform — build, train, and deploy intelligent chat assistants for your website, mobile app, or any product without writing AI code.
+
+The **Chatty API** gives you programmatic access to everything: send messages, read leads, manage knowledge sources, and pull analytics — all from your own backend.
+
+## What you can build
+
+<CardGroup cols={2}>
+  <Card title="Custom Chat Interfaces" icon="💬" href="/api-reference/chat/send-message">
+    Embed the bot in your own React, Vue, or native app. Stream messages directly — no iFrame required.
+  </Card>
+  <Card title="CRM Integrations" icon="🗄️" href="/api-reference/leads/list">
+    Sync captured leads to HubSpot, Salesforce, or any CRM. Pull leads via API and push them wherever you need.
+  </Card>
+  <Card title="Knowledge Automation" icon="🧠" href="/api-reference/knowledge/add">
+    Keep your bot's knowledge base fresh. Trigger URL crawls, add content from your CMS, and remove stale sources programmatically.
+  </Card>
+  <Card title="Analytics Dashboards" icon="📊" href="/api-reference/analytics/summary">
+    Build internal reporting on conversation volume, lead conversion, and response quality.
+  </Card>
+</CardGroup>
+
+## Base URL
+
+All API requests go to:
+
+```
+https://personaliai-api-376030619262.us-central1.run.app
+```
+
+## Quick example
+
+```bash
+curl -X POST https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat \
+  -H "Authorization: Bearer chatty_sk_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "What are your pricing plans?", "session_id": "user-abc"}'
+```
+
+```json
+{
+  "reply": "We offer three plans: Starter (free), Pro ($29/mo), and Business ($99/mo)...",
+  "session_id": "user-abc"
+}
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="🚀" href="/quickstart">
+    Get your first API response in under 5 minutes.
+  </Card>
+  <Card title="Authentication" icon="🔑" href="/authentication">
+    API keys, scopes, and IP allowlists.
+  </Card>
+  <Card title="Rate Limits" icon="⚡" href="/rate-limits">
+    Understand the limits and how to work within them.
+  </Card>
+  <Card title="Embed Widget" icon="📌" href="/guides/embed-widget">
+    Add Chatty to any website with one line of HTML.
+  </Card>
+</CardGroup>
+
+<PageNav {...prevNext("/introduction")} />

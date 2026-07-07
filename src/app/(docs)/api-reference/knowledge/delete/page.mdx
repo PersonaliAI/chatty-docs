@@ -1,0 +1,47 @@
+export const metadata = { title: "Delete Knowledge Source", description: "Remove a knowledge source from the bot." }
+
+import { Warning } from "@/components/mdx/Callout"
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Delete Knowledge Source
+
+<ApiEndpointBadge method="DELETE" path="/api/v1/knowledge/{source_id}" />
+
+Permanently removes a knowledge source. The bot will no longer use the content when answering questions.
+
+**Required scope:** `write`
+
+<Warning>Deletion is **permanent**. The bot's answers may change immediately once the source is removed.</Warning>
+
+## Path parameters
+
+<ParamField path="source_id" type="string" required>The UUID of the knowledge source to delete.</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">Always `true`.</ResponseField>
+<ResponseField name="id" type="string">The ID of the deleted source.</ResponseField>
+<ResponseField name="deleted" type="boolean">Always `true`.</ResponseField>
+
+## Example
+
+```bash title="cURL"
+curl -X DELETE \
+  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/knowledge/ks-uuid-003" \
+  -H "Authorization: Bearer chatty_sk_your_key"
+```
+
+**200 OK:**
+```json
+{ "success": true, "id": "ks-uuid-003", "deleted": true }
+```
+
+**404 — not found:**
+```json
+{ "detail": "Knowledge source not found or belongs to a different bot" }
+```
+
+<PageNav {...prevNext("/api-reference/knowledge/delete")} />

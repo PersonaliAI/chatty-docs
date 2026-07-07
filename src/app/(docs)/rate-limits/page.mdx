@@ -1,0 +1,94 @@
+export const metadata = { title: "Rate Limits", description: "Request limits and how to handle 429 responses." }
+
+import { Note } from "@/components/mdx/Callout"
+import { Accordion, AccordionGroup } from "@/components/mdx/Accordion"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Rate Limits
+
+## Limits
+
+| Limit | Scope | Window |
+|-------|-------|--------|
+| **60 req / min** | Per API key | Sliding 60s |
+| **120 req / min** | Per IP address per endpoint | Sliding 60s |
+
+Both limits use a **sliding window** — not a fixed clock minute.
+
+## 429 response
+
+```http
+HTTP/1.1 429 Too Many Requests
+Retry-After: 60
+Content-Type: application/json
+```
+
+```json
+{ "detail": "Rate limit exceeded (60/min per key)" }
+```
+
+## Handling 429s
+
+```python title="Python — exponential backoff"
+import httpx, time
+
+def chat_with_retry(text, session_id, retries=3):
+    for attempt in range(retries):
+        r = httpx.post(
+            "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+            headers={"Authorization": "Bearer chatty_sk_key"},
+            json={"text": text, "session_id": session_id},
+        )
+        if r.status_code == 429:
+            wait = int(r.headers.get("retry-after", 60)) * (2 ** attempt)
+            time.sleep(wait)
+            continue
+        r.raise_for_status()
+        return r.json()
+    raise RuntimeError("Max retries exceeded")
+```
+
+```javascript title="Node.js — exponential backoff"
+async function chat(text, sessionId, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    const res = await fetch("...url.../api/v1/chat", {
+      method: "POST",
+      headers: { Authorization: "Bearer chatty_sk_key", "Content-Type": "application/json" },
+      body: JSON.stringify({ text, session_id: sessionId }),
+    });
+    if (res.status === 429) {
+      const wait = parseInt(res.headers.get("retry-after") || "60") * 2 ** i;
+      await new Promise((r) => setTimeout(r, wait * 1000));
+      continue;
+    }
+    return res.json();
+  }
+}
+```
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Reuse session IDs">
+    Don't create a new session per message. Keep the same `session_id` for an ongoing conversation — the history is server-side and costs zero extra requests.
+  </Accordion>
+  <Accordion title="Cache analytics responses">
+    `/api/v1/analytics` scans the full conversation table. Cache responses for ≥60 seconds in your app.
+  </Accordion>
+  <Accordion title="Use separate keys per integration">
+    A burst from your knowledge-base crawler won't affect your chat widget's rate limit if they use different keys.
+  </Accordion>
+</AccordionGroup>
+
+| Endpoint | Additional limit |
+|----------|----------------|
+| `POST /api/v1/knowledge` (url) | 1 crawl per call; takes 2–5s |
+| `GET /api/v1/leads` | Max 200 per page |
+| Widget (`/api/widget/chat`) | 30 msg/60s per visitor IP + bot |
+
+<Note>
+  The widget rate limit is separate from the API key limit and only applies to embedded chat, not to API key requests.
+</Note>
+
+<PageNav {...prevNext("/rate-limits")} />

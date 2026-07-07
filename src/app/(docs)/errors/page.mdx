@@ -1,0 +1,76 @@
+export const metadata = { title: "Errors", description: "HTTP status codes and error response format." }
+
+import { Accordion, AccordionGroup } from "@/components/mdx/Accordion"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Errors
+
+## Format
+
+All errors return a JSON body with a single `detail` field:
+
+```json
+{ "detail": "Human-readable error message." }
+```
+
+Every response includes an `X-Request-ID` header. Include it when contacting support.
+
+## HTTP status codes
+
+| Code | Name | When |
+|------|------|------|
+| `400` | Bad Request | Missing field, invalid value, or malformed input |
+| `401` | Unauthorized | Missing/invalid/revoked API key |
+| `403` | Forbidden | Missing scope or IP not on allowlist |
+| `404` | Not Found | Resource doesn't exist or belongs to another bot |
+| `422` | Unprocessable Entity | Valid request but operation couldn't complete (e.g. URL has no content) |
+| `429` | Too Many Requests | Rate limit exceeded |
+| `500` | Internal Server Error | Unexpected server error |
+| `502` | Bad Gateway | AI provider error or timeout |
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="401 — Missing Bearer API key">
+    You didn't include the `Authorization` header or it doesn't start with `Bearer `.
+
+    **Fix:** Add `Authorization: Bearer chatty_sk_your_key` to your request headers.
+  </Accordion>
+  <Accordion title="401 — Invalid API key">
+    The key doesn't match any key in the system.
+
+    **Fix:** Check for typos or trailing whitespace. Regenerate if needed.
+  </Accordion>
+  <Accordion title="401 — API key revoked">
+    The key was revoked from the dashboard.
+
+    **Fix:** Create a new key in Dashboard → API Keys.
+  </Accordion>
+  <Accordion title="403 — Missing scope">
+    ```json
+    { "detail": "This API key is missing the 'write' scope. Current scopes: ['chat', 'read']." }
+    ```
+    **Fix:** Edit the key in the dashboard and add the required scope.
+  </Accordion>
+  <Accordion title="403 — IP not on allowlist">
+    ```json
+    { "detail": "IP address '203.0.113.42' is not permitted for this API key." }
+    ```
+    **Fix:** Add your IP to the allowlist or remove the allowlist restriction.
+  </Accordion>
+  <Accordion title="422 — URL returned no content">
+    ```json
+    { "detail": "URL returned no usable content" }
+    ```
+    The page is likely behind a login wall or is a JavaScript SPA. Use `type: "text"` and paste content manually.
+  </Accordion>
+  <Accordion title="502 — AI provider error">
+    ```json
+    { "detail": "assistant error: upstream provider timeout" }
+    ```
+    The underlying AI provider returned an error. Retry with backoff. If persistent, contact support with the `X-Request-ID`.
+  </Accordion>
+</AccordionGroup>
+
+<PageNav {...prevNext("/errors")} />

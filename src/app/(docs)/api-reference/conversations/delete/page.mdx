@@ -1,0 +1,48 @@
+export const metadata = { title: "Clear Session", description: "Delete all messages in a conversation session." }
+
+import { Warning } from "@/components/mdx/Callout"
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Clear a Session
+
+<ApiEndpointBadge method="DELETE" path="/api/v1/conversations/{session_id}" />
+
+Permanently deletes all messages in the given session. The next message sent with the same `session_id` starts a fresh conversation.
+
+**Required scope:** `write`
+
+<Warning>This operation is **irreversible**. All messages in the session are permanently deleted.</Warning>
+
+## Path parameters
+
+<ParamField path="session_id" type="string" required>The session to clear.</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">Always `true`.</ResponseField>
+<ResponseField name="session_id" type="string">The session that was cleared.</ResponseField>
+<ResponseField name="deleted" type="boolean">Always `true`.</ResponseField>
+
+## Example
+
+```bash title="cURL"
+curl -X DELETE \
+  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/conversations/visitor-xyz-789" \
+  -H "Authorization: Bearer chatty_sk_your_key"
+```
+
+**200 OK:**
+```json
+{ "success": true, "session_id": "visitor-xyz-789", "deleted": true }
+```
+
+## Use cases
+
+- **GDPR / privacy** — delete a specific user's conversation history on request
+- **Demo resets** — clear a test session between automated runs
+- **Fresh start** — allow a visitor to restart their conversation
+
+<PageNav {...prevNext("/api-reference/conversations/delete")} />

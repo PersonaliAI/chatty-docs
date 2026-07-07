@@ -1,0 +1,65 @@
+export const metadata = { title: "Usage Stats", description: "Return daily message and token usage for the API key." }
+
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { Expandable } from "@/components/mdx/Expandable"
+import { Note } from "@/components/mdx/Callout"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Usage Stats
+
+<ApiEndpointBadge method="GET" path="/api/v1/usage" />
+
+Returns per-day message and API call counts for the API key. Useful for building usage dashboards or tracking against quotas.
+
+**Required scope:** `read`
+
+<Note>Stats are scoped to the API key — multiple keys sharing the same bot each have independent usage counters.</Note>
+
+## Query parameters
+
+<ParamField query="days" type="integer" default="30">Number of days to look back. Min 1, max 90.</ParamField>
+
+## Response
+
+<ResponseField name="key_id" type="string">The API key identifier these stats belong to.</ResponseField>
+<ResponseField name="days" type="integer">Number of days covered.</ResponseField>
+<ResponseField name="totals" type="object">
+  Aggregated across all days.
+  <Expandable title="Totals fields">
+    <ResponseField name="messages" type="integer">Total chat messages sent through this key.</ResponseField>
+    <ResponseField name="api_calls" type="integer">Total API requests made with this key.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="daily" type="array">
+  Per-day breakdown, newest first.
+  <Expandable title="Daily entry fields">
+    <ResponseField name="date" type="string">Date in `YYYY-MM-DD` format.</ResponseField>
+    <ResponseField name="messages" type="integer">Messages on this day.</ResponseField>
+    <ResponseField name="api_calls" type="integer">API calls on this day.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash title="cURL"
+curl "https://personaliai-api-376030619262.us-central1.run.app/api/v1/usage?days=7" \
+  -H "Authorization: Bearer chatty_sk_your_key"
+```
+
+**200 OK:**
+```json
+{
+  "key_id": "key-uuid-001",
+  "days": 7,
+  "totals": { "messages": 512, "api_calls": 89 },
+  "daily": [
+    { "date": "2026-07-07", "messages": 98, "api_calls": 14 },
+    { "date": "2026-07-06", "messages": 103, "api_calls": 17 },
+    { "date": "2026-07-05", "messages": 67,  "api_calls": 11 }
+  ]
+}
+```
+
+<PageNav {...prevNext("/api-reference/usage/stats")} />
