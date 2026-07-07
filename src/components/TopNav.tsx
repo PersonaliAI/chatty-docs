@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Search, Moon, Sun, Menu, X, ExternalLink } from "lucide-react";
@@ -94,14 +94,14 @@ export function TopNav({ onMenuToggle, menuOpen }: { onMenuToggle: () => void; m
           className="flex-1 max-w-xs flex items-center gap-2 px-3 py-1.5 text-sm text-[--text-muted] bg-[--bg-subtle] border border-[--border] rounded-lg hover:border-brand-500/50 transition-colors">
           <Search size={13} />
           <span className="flex-1 text-left text-[--text-subtle]">Search docs...</span>
-          <kbd className="text-[10px] border border-[--border] rounded px-1 py-0.5 hidden sm:block">⌘K</kbd>
+          <kbd className="text-[10px] border border-[--border] rounded px-1 py-0.5 hidden sm:block">âŒ˜K</kbd>
         </button>
 
         <div className="flex-1" />
 
         {/* Links */}
         <nav className="hidden md:flex items-center gap-1 text-sm text-[--text-muted]">
-          <a href="https://chatty.ai/dashboard" target="_blank" rel="noreferrer"
+          <a href="https://chatty.personaliai.com/dashboard" target="_blank" rel="noreferrer"
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
             Dashboard <ExternalLink size={11} />
           </a>
@@ -110,7 +110,7 @@ export function TopNav({ onMenuToggle, menuOpen }: { onMenuToggle: () => void; m
 
         <ThemeToggle />
 
-        <a href="https://chatty.ai/signup" target="_blank" rel="noreferrer"
+        <a href="https://chatty.personaliai.com/signup" target="_blank" rel="noreferrer"
           className="hidden sm:flex items-center gap-1.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium px-3.5 py-1.5 rounded-lg transition-colors">
           Get started
         </a>

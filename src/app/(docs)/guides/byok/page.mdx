@@ -39,7 +39,7 @@ BYOK lets you power your Chatty bot with your own API key from OpenAI, Anthropic
 
 ```bash title="Set a BYOK key"
 curl -X PATCH \
-  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/bot/byok" \
+  "https://api.personaliai.com/api/v1/bot/byok" \
   -H "Authorization: Bearer chatty_sk_your_key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -51,7 +51,7 @@ curl -X PATCH \
 
 ```bash title="Remove BYOK key (revert to Chatty shared)"
 curl -X DELETE \
-  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/bot/byok" \
+  "https://api.personaliai.com/api/v1/bot/byok" \
   -H "Authorization: Bearer chatty_sk_your_key"
 ```
 

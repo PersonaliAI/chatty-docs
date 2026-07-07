@@ -36,7 +36,7 @@ import httpx, time
 def chat_with_retry(text, session_id, retries=3):
     for attempt in range(retries):
         r = httpx.post(
-            "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+            "https://api.personaliai.com/api/v1/chat",
             headers={"Authorization": "Bearer chatty_sk_key"},
             json={"text": text, "session_id": session_id},
         )
@@ -52,7 +52,7 @@ def chat_with_retry(text, session_id, retries=3):
 ```javascript title="Node.js — exponential backoff"
 async function chat(text, sessionId, retries = 3) {
   for (let i = 0; i < retries; i++) {
-    const res = await fetch("...url.../api/v1/chat", {
+    const res = await fetch("https://api.personaliai.com/api/v1/chat", {
       method: "POST",
       headers: { Authorization: "Bearer chatty_sk_key", "Content-Type": "application/json" },
       body: JSON.stringify({ text, session_id: sessionId }),
@@ -74,7 +74,7 @@ async function chat(text, sessionId, retries = 3) {
     Don't create a new session per message. Keep the same `session_id` for an ongoing conversation — the history is server-side and costs zero extra requests.
   </Accordion>
   <Accordion title="Cache analytics responses">
-    `/api/v1/analytics` scans the full conversation table. Cache responses for ≥60 seconds in your app.
+    `/api/v1/analytics` scans the full conversation table. Cache responses for at least 60 seconds in your app.
   </Accordion>
   <Accordion title="Use separate keys per integration">
     A burst from your knowledge-base crawler won't affect your chat widget's rate limit if they use different keys.

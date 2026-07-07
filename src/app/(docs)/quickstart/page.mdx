@@ -8,7 +8,7 @@ import { prevNext } from "@/lib/navigation"
 
 ## 1. Create a bot
 
-Log in to the [Chatty Dashboard](https://chatty.ai/dashboard) and create a new bot. Train it with a few URLs or text snippets.
+Log in to the [Chatty Dashboard](https://chatty.personaliai.com/dashboard) and create a new bot. Train it with a few URLs or text snippets.
 
 ## 2. Generate an API key
 
@@ -23,7 +23,7 @@ Your key looks like: `chatty_sk_a3f9b2c1d8e4f5g6...`
 ## 3. Make your first call
 
 ```bash title="cURL"
-curl -X POST https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat \
+curl -X POST https://api.personaliai.com/api/v1/chat \
   -H "Authorization: Bearer chatty_sk_your_key_here" \
   -H "Content-Type: application/json" \
   -d '{
@@ -36,7 +36,7 @@ curl -X POST https://personaliai-api-376030619262.us-central1.run.app/api/v1/cha
 import httpx
 
 response = httpx.post(
-    "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+    "https://api.personaliai.com/api/v1/chat",
     headers={"Authorization": "Bearer chatty_sk_your_key_here"},
     json={"text": "Hello!", "session_id": "quickstart-1"},
 )
@@ -45,7 +45,7 @@ print(response.json()["reply"])
 
 ```javascript title="Node.js"
 const res = await fetch(
-  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+  "https://api.personaliai.com/api/v1/chat",
   {
     method: "POST",
     headers: {
@@ -62,7 +62,7 @@ console.log(reply);
 ```php title="PHP"
 $ch = curl_init();
 curl_setopt_array($ch, [
-    CURLOPT_URL => "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+    CURLOPT_URL => "https://api.personaliai.com/api/v1/chat",
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST => true,
     CURLOPT_HTTPHEADER => [
@@ -94,7 +94,7 @@ echo $data["reply"];
 ## 5. Continue the conversation
 
 ```bash
-curl -X POST https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat \
+curl -X POST https://api.personaliai.com/api/v1/chat \
   -H "Authorization: Bearer chatty_sk_your_key_here" \
   -H "Content-Type: application/json" \
   -d '{"text": "Tell me about pricing.", "session_id": "quickstart-1"}'

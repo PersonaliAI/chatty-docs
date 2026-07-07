@@ -1,4 +1,4 @@
-export const metadata = { title: "List Conversations", description: "Return recent messages across all sessions." }
+﻿export const metadata = { title: "List Conversations", description: "Return recent messages across all sessions." }
 
 import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
 import { ParamField, ResponseField } from "@/components/mdx/ParamField"
@@ -29,7 +29,7 @@ Returns messages across all conversation sessions, newest first. Use `GET /api/v
 ## Example
 
 ```bash title="cURL"
-curl "https://personaliai-api-376030619262.us-central1.run.app/api/v1/conversations?limit=50" \
+curl "https://api.personaliai.com/api/v1/conversations?limit=50" \
   -H "Authorization: Bearer chatty_sk_your_key"
 ```
 

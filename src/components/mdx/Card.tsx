@@ -19,7 +19,7 @@ export function Card({ title, icon, color = "#f97316", href, children }: CardPro
         <span className="text-xl mb-3 block">{icon}</span>
       )}
       <h3 className="font-semibold text-sm text-[--text] mb-1 group-hover:text-brand-500 transition-colors">{title}</h3>
-      {children && <p className="text-xs text-[--text-muted] leading-relaxed m-0">{children}</p>}
+      {children && <div className="text-xs text-[--text-muted] leading-relaxed [&_p]:m-0">{children}</div>}
     </div>
   );
 

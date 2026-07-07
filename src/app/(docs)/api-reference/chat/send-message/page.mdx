@@ -41,7 +41,7 @@ Send a message to your bot and get an AI reply based on its knowledge base, guar
 ## Examples
 
 ```bash title="cURL"
-curl -X POST https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat \
+curl -X POST https://api.personaliai.com/api/v1/chat \
   -H "Authorization: Bearer chatty_sk_your_key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -55,7 +55,7 @@ curl -X POST https://personaliai-api-376030619262.us-central1.run.app/api/v1/cha
 import httpx
 
 r = httpx.post(
-    "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+    "https://api.personaliai.com/api/v1/chat",
     headers={"Authorization": "Bearer chatty_sk_your_key"},
     json={"text": "Do you offer a free trial?", "session_id": "visitor-xyz-789"},
 )
@@ -64,7 +64,7 @@ print(r.json()["reply"])
 
 ```javascript title="Node.js"
 const res = await fetch(
-  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+  "https://api.personaliai.com/api/v1/chat",
   {
     method: "POST",
     headers: {
@@ -83,7 +83,7 @@ body, _ := json.Marshal(map[string]string{
     "session_id": "visitor-xyz-789",
 })
 req, _ := http.NewRequest("POST",
-    "https://personaliai-api-376030619262.us-central1.run.app/api/v1/chat",
+    "https://api.personaliai.com/api/v1/chat",
     bytes.NewBuffer(body))
 req.Header.Set("Authorization", "Bearer chatty_sk_your_key")
 req.Header.Set("Content-Type", "application/json")

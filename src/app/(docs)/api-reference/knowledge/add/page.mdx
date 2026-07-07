@@ -1,4 +1,4 @@
-export const metadata = { title: "Add Knowledge Source", description: "Add a text snippet or URL as a knowledge source." }
+﻿export const metadata = { title: "Add Knowledge Source", description: "Add a text snippet or URL as a knowledge source." }
 
 import { Note } from "@/components/mdx/Callout"
 import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
@@ -39,7 +39,7 @@ Add a text snippet or a URL to the bot's knowledge base. URL sources are fetched
 
 ```bash title="Add text snippet"
 curl -X POST \
-  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/knowledge" \
+  "https://api.personaliai.com/api/v1/knowledge" \
   -H "Authorization: Bearer chatty_sk_your_key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -51,7 +51,7 @@ curl -X POST \
 
 ```bash title="Add URL"
 curl -X POST \
-  "https://personaliai-api-376030619262.us-central1.run.app/api/v1/knowledge" \
+  "https://api.personaliai.com/api/v1/knowledge" \
   -H "Authorization: Bearer chatty_sk_your_key" \
   -H "Content-Type: application/json" \
   -d '{ "type": "url", "content": "https://acme.com/docs/faq" }'

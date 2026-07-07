@@ -27,10 +27,12 @@ export function DocsLayout({ children }: { children: React.ReactNode }) {
           <Sidebar />
         </div>
 
-        {/* Main content */}
+        {/* Main content — generous padding so text breathes */}
         <main className="flex-1 lg:ml-[--sidebar-w] min-w-0">
-          <div className="max-w-3xl mx-auto px-6 py-10 xl:px-12">
-            {children}
+          <div className="max-w-[740px] mx-auto px-8 py-12 xl:px-14 2xl:px-16">
+            <div className="mdx-content">
+              {children}
+            </div>
           </div>
         </main>
       </div>
