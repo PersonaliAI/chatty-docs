@@ -15,7 +15,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           __html: `(function(){try{var d=document.documentElement,c=localStorage.getItem('theme');if(c==='dark'||(c===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){d.classList.add('dark')}}catch(e){}})()`,
         }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <script
+          src="https://chatty.personaliai.com/widget.js"
+          data-id="e4be8304-2eb6-48aa-add8-6cab78ee7218"
+          defer
+        />
+      </body>
     </html>
   );
 }
