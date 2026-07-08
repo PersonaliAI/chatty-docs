@@ -5,7 +5,3 @@ runConfig:
   memoryMiB: 512
   minInstances: 0
   maxInstances: 4
-
-env:
-  - variable: NODE_ENV
-    value: production
