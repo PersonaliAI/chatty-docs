@@ -24,6 +24,7 @@ const pages = [
   { url: "/guides/webhooks",                     priority: 0.8 },
   { url: "/guides/byok",                         priority: 0.7 },
   { url: "/guides/languages",                    priority: 0.7 },
+  { url: "/security",                            priority: 0.7 },
   { url: "/changelog",                           priority: 0.6 },
 ];
 

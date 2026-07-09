@@ -47,6 +47,7 @@ export const navigation: NavGroup[] = [
   {
     title: "Resources",
     items: [
+      { title: "Security & Privacy", href: "/security" },
       { title: "Changelog", href: "/changelog" },
     ],
   },

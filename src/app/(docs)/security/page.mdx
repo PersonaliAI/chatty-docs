@@ -1,0 +1,68 @@
+export const metadata = { title: "Security & Privacy", description: "How Chatty handles data, encryption, subprocessors, and GDPR requests." }
+
+import { Note, Warning, Tip } from "@/components/mdx/Callout"
+import { Card, CardGroup } from "@/components/mdx/Card"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Security & Privacy
+
+We build Chatty for teams that put customer data on the line. This page explains
+how your data — and your visitors' data — is stored, protected, and controlled.
+
+## Data handling
+
+- **What we store:** bot configuration, knowledge sources you add, visitor
+  conversations, captured leads, and usage metrics.
+- **Where:** managed Postgres (Supabase) and Google Cloud, both in first-party
+  regions. Uploaded files live in access-controlled object storage.
+- **Isolation:** every table enforces **row-level security** — a bot's data is
+  only ever readable by its owner. Widget traffic is served exclusively through
+  our backend, which authenticates each request against the bot's domain
+  allowlist; the public key that ships in the widget cannot read stored data.
+
+## Encryption
+
+- **In transit:** all traffic is TLS 1.2+. HTTP is upgraded to HTTPS.
+- **At rest:** database and object storage are encrypted at rest by the
+  provider.
+- **Bring-your-own-key (BYOK):** if you supply your own model provider key, it
+  is encrypted with a dedicated symmetric key before storage and never returned
+  in plaintext.
+
+## Access controls
+
+- Scoped API keys (`chat`, `read`, `write`, `admin`) with optional IP allowlists.
+- Per-bot **domain allowlist** so your widget only answers on sites you approve.
+- Rate limiting on public endpoints to prevent abuse.
+
+## Subprocessors
+
+<CardGroup>
+  <Card title="Google Cloud">Model inference (Vertex AI) and application hosting.</Card>
+  <Card title="Supabase">Managed Postgres, auth, and file storage.</Card>
+  <Card title="Lemon Squeezy">Subscription billing and payments.</Card>
+</CardGroup>
+
+## Your GDPR rights
+
+Chatty gives bot owners the tools to honor data-subject requests:
+
+- **Right to access / portability** — export all data held for a bot
+  (conversations, sessions, leads) as JSON via `GET /api/admin/gdpr/export`.
+- **Right to erasure** — delete an individual visitor's conversation from the
+  **Inbox**, or clear a session via the API.
+- **Retention** — conversations can be automatically purged after a configurable
+  window.
+
+<Note>
+Need a signed Data Processing Agreement (DPA)? Email <b>support@personaliai.com</b>.
+</Note>
+
+## Responsible disclosure
+
+Found a vulnerability? Please report it privately to
+**security@personaliai.com** before any public disclosure. We investigate all
+reports and aim to acknowledge within two business days.
+
+<PageNav {...prevNext("/security")} />
