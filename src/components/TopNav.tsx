@@ -83,21 +83,22 @@ export function TopNav({ onMenuToggle, menuOpen }: { onMenuToggle: () => void; m
     <>
       <header className="fixed top-0 left-0 right-0 z-40 h-[--topbar-h] bg-[--bg]/90 backdrop-blur border-b border-[--border] flex items-center px-4 gap-4">
         {/* Logo */}
-        <Link href="/introduction" className="flex items-center gap-2.5 shrink-0 mr-2">
-          <div className="w-7 h-7 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-sm">C</div>
+        <Link href="/introduction" className="flex items-center gap-2.5 shrink-0 mr-1 sm:mr-2">
+          <div className="w-7 h-7 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-sm shrink-0">C</div>
           <span className="font-semibold text-sm text-[--text]">Chatty</span>
-          <span className="text-xs text-[--text-subtle] bg-[--bg-muted] rounded px-1.5 py-0.5 font-mono">docs</span>
+          <span className="hidden sm:inline-block text-xs text-[--text-subtle] bg-[--bg-muted] rounded px-1.5 py-0.5 font-mono">docs</span>
         </Link>
 
         {/* Search */}
         <button onClick={() => setSearchOpen(true)}
-          className="flex-1 max-w-xs flex items-center gap-2 px-3 py-1.5 text-sm text-[--text-muted] bg-[--bg-subtle] border border-[--border] rounded-lg hover:border-brand-500/50 transition-colors">
-          <Search size={13} />
-          <span className="flex-1 text-left text-[--text-subtle]">Search docs...</span>
-          <kbd className="text-[10px] border border-[--border] rounded px-1 py-0.5 hidden sm:block">âŒ˜K</kbd>
+          className="flex-1 min-w-0 max-w-xs flex items-center gap-2 px-3 py-1.5 text-sm text-[--text-muted] bg-[--bg-subtle] border border-[--border] rounded-lg hover:border-brand-500/50 transition-colors">
+          <Search size={13} className="shrink-0" />
+          <span className="flex-1 min-w-0 truncate text-left text-[--text-subtle]">Search docs...</span>
+          <kbd className="text-[10px] border border-[--border] rounded px-1 py-0.5 hidden sm:block">⌘K</kbd>
         </button>
 
-        <div className="flex-1" />
+        {/* Spacer only on desktop — on mobile the search takes the free space */}
+        <div className="hidden md:block flex-1" />
 
         {/* Links */}
         <nav className="hidden md:flex items-center gap-1 text-sm text-[--text-muted]">
