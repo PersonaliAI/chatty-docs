@@ -1,4 +1,4 @@
-export const metadata = { title: "Mobile SDKs", description: "Add Chatty to iOS and Android apps." }
+export const metadata = { title: "Mobile SDKs", description: "Add Chatty to iOS, Android, and React Native apps with native SDKs." }
 
 import { Note, Warning } from "@/components/mdx/Callout"
 import { Card, CardGroup } from "@/components/mdx/Card"
@@ -7,120 +7,165 @@ import { prevNext } from "@/lib/navigation"
 
 # Mobile SDKs
 
-Add the Chatty chat experience to iOS and Android apps with our native SDKs.
+Add the Chatty chat experience to native apps. Each SDK renders a **fully native UI** — SwiftUI on iOS, Jetpack Compose on Android, native components on React Native — with no WebView.
 
-<Note>Mobile SDKs are currently in **beta**. The API is stable but binary size and threading behaviour may change before GA.</Note>
+Every SDK exposes the same two entry points:
+
+- **`ChattyLauncher`** — a floating chat button you overlay on your app.
+- **`ChattyChatView` / `ChattyChatScreen`** — a full-screen chat view you embed directly.
+
+Both take your **bot ID** (find it in the dashboard under **Embed & Integrate**). Optional parameters: `baseUrl`/`baseURL`, `host`, `position`, and `color`.
+
+---
 
 ## iOS
 
-### Installation
+**Swift Package Manager.** In Xcode: **File → Add Package Dependencies**, paste the URL and select version `1.0.0`:
 
-**Swift Package Manager** (recommended):
+```
+https://github.com/Damayantha/chatty-ios-sdk
+```
+
+Or in `Package.swift`:
 
 ```swift title="Package.swift"
-.package(url: "https://github.com/personaliai/chatty-ios", from: "0.9.0")
+.package(url: "https://github.com/Damayantha/chatty-ios-sdk", from: "1.0.0")
 ```
 
-Or via Xcode: **File → Add Packages** → search `chatty-ios`.
+### Floating launcher
 
-### Usage
-
-```swift title="AppDelegate.swift"
+```swift title="RootView.swift"
+import SwiftUI
 import ChattySDK
 
-@main
-class AppDelegate: UIResponder, UIApplicationDelegate {
-  func application(_ application: UIApplication, didFinishLaunchingWithOptions ...) -> Bool {
-    Chatty.configure(botId: "YOUR_BOT_ID")
-    return true
-  }
+struct RootView: View {
+    var body: some View {
+        ContentView()
+            .overlay(ChattyLauncher(botId: "YOUR_BOT_ID"))
+    }
 }
 ```
 
-```swift title="Show the chat UI"
-import ChattySDK
-import UIKit
+### Full-screen chat
 
-class SupportViewController: UIViewController {
-  @IBAction func openChat(_ sender: Any) {
-    let chatVC = ChattyViewController()
-    chatVC.sessionId = "user-\(currentUser.id)"       // optional
-    chatVC.userName  = currentUser.displayName         // skips lead form
-    chatVC.userEmail = currentUser.email
-    present(chatVC, animated: true)
-  }
+```swift title="SupportView.swift"
+import SwiftUI
+import ChattySDK
+
+struct SupportView: View {
+    var body: some View {
+        ChattyChatView(botId: "YOUR_BOT_ID")
+    }
 }
 ```
 
-### Permissions
-
-The SDK requires no special `Info.plist` permissions for basic chat. If you enable attachment uploads, add `NSPhotoLibraryUsageDescription`.
+<Note>Requires iOS 15+. No special `Info.plist` permissions are needed for basic chat; add `NSPhotoLibraryUsageDescription` only if visitors will upload images.</Note>
 
 ---
 
 ## Android
 
-### Installation
+Published on **Maven Central** — `mavenCentral()` is already in the default Gradle setup, so just add the dependency:
 
-Add to your module-level `build.gradle`:
-
-```groovy title="build.gradle (app)"
+```kotlin title="app/build.gradle.kts"
 dependencies {
-    implementation("com.personaliai:chatty-android:0.9.0")
+    implementation("com.personaliai:chatty-android-sdk:1.0.0")
 }
 ```
 
-### Usage
+### Floating launcher
 
-```kotlin title="Application class"
-import com.personaliai.chatty.Chatty
+```kotlin title="AppRoot.kt"
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.personaliai.chatty.ChattyLauncher
 
-class MyApp : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        Chatty.configure(context = this, botId = "YOUR_BOT_ID")
+@Composable
+fun AppRoot() {
+    Box(Modifier.fillMaxSize()) {
+        // your app content
+        ChattyLauncher(botId = "YOUR_BOT_ID")
     }
 }
 ```
 
-```kotlin title="Open chat from an Activity"
-import com.personaliai.chatty.ChattyActivity
+### Full-screen chat
 
-// Launch full-screen chat
-ChattyActivity.launch(
-    context   = this,
-    sessionId = "user-${currentUser.id}",  // optional
-    userName  = currentUser.displayName,
-    userEmail = currentUser.email,
-)
+```kotlin title="SupportScreen.kt"
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.fillMaxSize
+import com.personaliai.chatty.ChattyChatScreen
+
+ChattyChatScreen(botId = "YOUR_BOT_ID", modifier = Modifier.fillMaxSize())
 ```
 
-### ProGuard
+### ProGuard / R8
 
-If you use R8/ProGuard, add:
 ```
 -keep class com.personaliai.chatty.** { *; }
 ```
 
+<Note>Requires minSdk 24+ and Jetpack Compose.</Note>
+
 ---
 
-## Passing session context
+## React Native
 
-Both SDKs accept the same session parameters as the web widget:
+Install from npm along with its peer dependency:
 
-| Parameter | Description |
-|---|---|
-| `sessionId` | Pins the conversation to a specific session (for logged-in users). |
-| `userName` | Pre-fills visitor name — bypasses the lead-capture name field. |
-| `userEmail` | Pre-fills visitor email. |
+```bash
+npm install @personaliai/react-native @react-native-async-storage/async-storage
+```
 
-<Warning>Never include the visitor's password or payment info in session context — these values appear in the bot's session metadata.</Warning>
+### Floating launcher
+
+```tsx title="App.tsx"
+import { ChattyLauncher } from "@personaliai/react-native";
+
+export default function App() {
+  return (
+    <>
+      {/* ...your app... */}
+      <ChattyLauncher botId="YOUR_BOT_ID" position="right" />
+    </>
+  );
+}
+```
+
+### Full-screen chat
+
+```tsx title="SupportScreen.tsx"
+import { ChattyChatView } from "@personaliai/react-native";
+
+export function SupportScreen() {
+  return <ChattyChatView botId="YOUR_BOT_ID" />;
+}
+```
+
+<Note>Requires React Native 0.72+. Renders real native components on both iOS and Android — no WebView.</Note>
+
+---
+
+## Common options
+
+| Parameter | Platforms | Description |
+|---|---|---|
+| `botId` | all | **Required.** Your bot's ID from the dashboard. |
+| `position` | Launcher | `left` / `right` (RN), `ChattyPosition` (Android). Which side the floating button sits on. |
+| `color` | all | Override the launcher/accent color (defaults to your bot's saved theme). |
+| `host` | all | Reported as the parent host for the bot's domain-allowlist check. |
+| `baseUrl` / `baseURL` | all | Point the SDK at a custom API base URL (self-hosted / staging). |
+
+The chat session is created and persisted automatically per device — you don't manage session IDs yourself.
+
+<Warning>These SDKs call the same widget API as the web embed, so the bot's **domain/host allowlist** and plan quota apply. Leave the allowlist empty (or add your app's host) if calls are rejected.</Warning>
 
 ## What's next
 
 <CardGroup cols={2}>
+  <Card title="Embed Widget" href="/guides/embed-widget">Add Chatty to a website with one script tag.</Card>
   <Card title="Webhooks" href="/guides/webhooks">Receive lead and message events server-side.</Card>
-  <Card title="BYOK" href="/guides/byok">Use your own AI model API key.</Card>
 </CardGroup>
 
 <PageNav {...prevNext("/guides/mobile-sdks")} />
