@@ -1,7 +1,8 @@
-export const metadata = { title: "Embed the Widget", description: "Add the Chatty chat widget to any website in under 2 minutes." }
+export const metadata = { title: "Embed the Widget", description: "Add the Chatty chat widget to any website — WordPress, Shopify, WooCommerce, Prestashop, WHMCS, Adobe Commerce, or plain HTML — in under 2 minutes." }
 
-import { Note, Tip } from "@/components/mdx/Callout"
+import { Note, Warning, Tip } from "@/components/mdx/Callout"
 import { Card, CardGroup } from "@/components/mdx/Card"
+import { Accordion, AccordionGroup } from "@/components/mdx/Accordion"
 import { PageNav } from "@/components/PageNav"
 import { prevNext } from "@/lib/navigation"
 
@@ -12,99 +13,179 @@ Add your bot to any website with a single `<script>` tag — no framework requir
 ## Get your embed code
 
 1. Open the [Chatty dashboard](https://chatty.personaliai.com/dashboard)
-2. Select your bot → **Embed**
-3. Copy the snippet
+2. Select your bot in the sidebar
+3. Go to **Embed & Integrate** — pick your platform there for a ready-to-paste snippet and step-by-step instructions
+4. Copy the snippet
 
-```html title="Paste before </body>"
+```html title="Paste just before </body>"
 <script
-  src="https://cdn.personaliai.com/widget.js"
-  data-bot-id="YOUR_BOT_ID"
-  async
+  src="https://chatty.personaliai.com/widget.js"
+  data-id="YOUR_BOT_ID"
+  defer
 ></script>
 ```
 
-That's it. The widget appears in the bottom-right corner of every page.
+That's it. A floating launcher button appears in the bottom-right corner of every page, and opens the assistant in an embedded chat panel.
 
-<Note>Replace `YOUR_BOT_ID` with the ID shown in the Embed tab of your dashboard.</Note>
+<Warning>
+The script tag must use **`data-id`**, not `data-bot-id` — the widget loader looks for `data-id`
+specifically and won't work if that attribute is named anything else.
+</Warning>
+
+<Note>Find `YOUR_BOT_ID` in the Embed & Integrate tab of your dashboard.</Note>
 
 ## Configuration attributes
 
-Customize behavior with `data-*` attributes on the script tag:
+All of these are optional — when omitted, the widget uses whatever you've configured in the
+dashboard's Customizer tab, and updates automatically if you change it there later (no need to
+re-embed).
 
 | Attribute | Default | Description |
 |---|---|---|
-| `data-bot-id` | — | **Required.** Your bot's unique ID. |
-| `data-position` | `"bottom-right"` | Widget position: `bottom-right` or `bottom-left`. |
-| `data-primary-color` | Bot default | Override accent color (hex, e.g. `#6366f1`). |
-| `data-open` | `false` | Start the widget open. |
-| `data-hide-launcher` | `false` | Hide the bubble — control visibility via JS API. |
-| `data-session-id` | Auto-generated | Pin a specific session (for logged-in users). |
-| `data-user-name` | — | Pre-fill visitor name (skips lead capture). |
-| `data-user-email` | — | Pre-fill visitor email. |
+| `data-id` | — | **Required.** Your bot's unique ID. |
+| `data-color` | Bot's saved color | Override the launcher button color (hex, e.g. `#6366f1`). Only affects the button itself, not the chat panel's theme. |
+| `data-style` | Bot's saved style | Override the widget's visual style preset. |
+| `data-position` | `"right"` | Which corner the launcher sits in: `right` or `left`. |
+| `data-mobile-fullscreen` | `"true"` | Set to `"false"` to keep the desktop floating-panel layout on mobile instead of going fullscreen. |
+| `data-teaser` | `"true"` | Set to `"false"` to disable the proactive greeting bubble that appears after a few seconds. |
+| `data-sound` | `"true"` | Set to `"false"` to disable the notification chime on new replies. |
 
 ```html title="Full example with options"
 <script
-  src="https://cdn.personaliai.com/widget.js"
-  data-bot-id="a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-  data-position="bottom-left"
-  data-primary-color="#6366f1"
-  data-session-id="user-{{ current_user.id }}"
-  data-user-name="{{ current_user.name }}"
-  data-user-email="{{ current_user.email }}"
-  async
+  src="https://chatty.personaliai.com/widget.js"
+  data-id="a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  data-position="left"
+  data-color="#6366f1"
+  data-mobile-fullscreen="false"
+  data-teaser="false"
+  data-sound="false"
+  defer
 ></script>
 ```
 
 ## JavaScript API
 
-After the widget loads, control it programmatically via `window.Chatty`:
+Once the widget has loaded, control it programmatically via `window.Chatty`:
 
 ```javascript
-// Open or close the widget
-window.Chatty.open()
-window.Chatty.close()
-window.Chatty.toggle()
-
-// Listen for events
-window.Chatty.on('message', (msg) => {
-  console.log('Bot replied:', msg.content)
-})
-window.Chatty.on('lead', (lead) => {
-  // lead.email, lead.name, lead.phone
-  myAnalytics.track('chatty_lead', lead)
-})
+window.Chatty.open()    // open the chat panel
+window.Chatty.close()   // close it
+window.Chatty.toggle()  // toggle open/closed
 ```
 
-## Framework snippets
+<Note>
+This is the full API surface today — there's no `window.Chatty.on(...)` event system yet. If you
+need to react to messages or leads programmatically (e.g. push them into your own analytics), use
+[webhooks](/guides/webhooks) instead, which push those events to your backend server-side.
+</Note>
 
-<Tip>The widget script is framework-agnostic. These snippets just show where to put it.</Tip>
+## Platform guides
 
-```jsx title="Next.js — app/layout.tsx"
-import Script from "next/script"
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        {children}
-        <Script
-          src="https://cdn.personaliai.com/widget.js"
-          data-bot-id={process.env.NEXT_PUBLIC_CHATTY_BOT_ID}
-          strategy="lazyOnload"
-        />
-      </body>
-    </html>
-  )
-}
+<AccordionGroup>
+
+<Accordion title="WordPress">
+
+1. In your WordPress admin, go to **Appearance → Theme File Editor → functions.php** and add:
+
+```php
+function chatty_widget() { ?>
+<script src="https://chatty.personaliai.com/widget.js" data-id="YOUR_BOT_ID" defer></script>
+<?php }
+add_action('wp_footer', 'chatty_widget');
 ```
 
-```html title="WordPress — footer.php"
-<?php /* Add to your theme's footer.php before </body> */ ?>
-<script
-  src="https://cdn.personaliai.com/widget.js"
-  data-bot-id="YOUR_BOT_ID"
-  async
-></script>
+2. Alternatively, if you'd rather not edit theme files, install the **Insert Headers and Footers**
+plugin and paste the same `<script>` snippet into its Footer Scripts field. No code editing required.
+
+</Accordion>
+
+<Accordion title="WooCommerce">
+
+WooCommerce runs on WordPress, so the WordPress steps above work as-is — add the snippet to
+`functions.php` via `wp_footer`, or use the Insert Headers and Footers plugin. The widget will
+appear on all product and checkout pages automatically; no WooCommerce-specific plugin is needed.
+
+</Accordion>
+
+<Accordion title="Shopify">
+
+1. In your Shopify admin, go to **Online Store → Themes → Edit code**.
+2. Open `layout/theme.liquid` and paste the snippet just before `</body>`:
+
+```html
+<script src="https://chatty.personaliai.com/widget.js" data-id="YOUR_BOT_ID" defer></script>
 ```
+
+3. Click **Save** — the widget appears on all storefront pages.
+
+</Accordion>
+
+<Accordion title="Prestashop">
+
+1. Go to **Modules → Module Manager** and search for a Custom HTML module.
+2. If one isn't available, edit your active theme's `footer.tpl` directly and paste the snippet
+just before `</body>`.
+3. Clear the Prestashop cache under **Advanced Parameters → Performance**.
+
+<Tip>Editing `footer.tpl` directly requires FTP or file-manager access to your Prestashop install.</Tip>
+
+</Accordion>
+
+<Accordion title="WHMCS">
+
+1. Open your WHMCS template folder: `/templates/<your-theme>/footer.tpl`.
+2. Paste the snippet just before `</body>`.
+3. Save, then clear the WHMCS template cache. Make sure to replace `<your-theme>` with your
+active template's actual name.
+
+</Accordion>
+
+<Accordion title="Adobe Commerce (Magento)">
+
+1. In your Magento admin, go to **Content → Configuration**, edit your store view, and add the
+snippet under **HTML Head → Scripts and Style Sheets** — or use a CMS Block/Widget.
+2. For a theme-level install instead, edit
+`app/design/frontend/<Vendor>/<theme>/Magento_Theme/layout/default.xml` to reference a custom
+`.phtml` block containing the snippet.
+3. Run `bin/magento cache:flush` after saving.
+
+<Tip>Using a CMS Static Block is the fastest option — it doesn't require a deploy.</Tip>
+
+</Accordion>
+
+<Accordion title="Plain HTML / any other platform">
+
+Paste the snippet just before the closing `</body>` tag of your page template:
+
+```html
+<script src="https://chatty.personaliai.com/widget.js" data-id="YOUR_BOT_ID" defer></script>
+```
+
+This works anywhere you can edit raw HTML — static site generators, custom CMSs, or a platform
+not listed above.
+
+</Accordion>
+
+<Accordion title="Standalone iframe (no floating launcher)">
+
+If you want a full embedded chat window inline in your page instead of a floating launcher
+button, embed the chat directly as an iframe:
+
+```html
+<iframe
+  src="https://chatty.personaliai.com/embed/YOUR_BOT_ID"
+  width="400"
+  height="600"
+  style="border:none;border-radius:16px;"
+></iframe>
+```
+
+Adjust `width`/`height` to fit your layout. This mode has no floating launcher — the chat is
+always visible wherever you place the iframe.
+
+</Accordion>
+
+</AccordionGroup>
 
 ## What's next
 
