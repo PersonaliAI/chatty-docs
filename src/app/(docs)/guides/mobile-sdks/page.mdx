@@ -65,11 +65,28 @@ struct SupportView: View {
 
 ## Android
 
-Published on **Maven Central** — `mavenCentral()` is already in the default Gradle setup, so just add the dependency:
+<Warning>
+Not yet published to Maven Central — the Gradle publish config (POM metadata, signing) is in place,
+but publishing needs a verified Sonatype account for the `com.personaliai` namespace, which hasn't
+happened yet. Until then, include it as a local module from the source repo:
+</Warning>
+
+```kotlin title="settings.gradle.kts"
+include(":chatty-sdk")
+project(":chatty-sdk").projectDir = file("../chatty-android-sdk/chatty-sdk")
+```
 
 ```kotlin title="app/build.gradle.kts"
 dependencies {
-    implementation("com.personaliai:chatty-android-sdk:1.0.0")
+    implementation(project(":chatty-sdk"))
+}
+```
+
+Clone [github.com/Damayantha/chatty-android-sdk](https://github.com/Damayantha/chatty-android-sdk) alongside your app, or add it as a git submodule. Once published, the dependency will be:
+
+```kotlin title="app/build.gradle.kts (once published)"
+dependencies {
+    implementation("com.personaliai:chatty-android-sdk:1.0.1")
 }
 ```
 

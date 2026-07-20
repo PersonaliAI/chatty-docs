@@ -10,7 +10,7 @@ Chatty can POST a JSON payload to your server whenever a key event occurs — no
 
 ## Registering a webhook
 
-Go to **Dashboard → Settings → Webhooks** and add your endpoint URL. You can also use the API:
+Registration is API-only for now — there's no dashboard page for it yet:
 
 ```bash title="Register via API"
 curl -X POST \
@@ -22,6 +22,8 @@ curl -X POST \
     "events": ["lead.created", "message.assistant"]
   }'
 ```
+
+The response includes a generated `secret` — save it immediately, it's shown once and never returned again (`GET /api/v1/webhooks` lists your webhooks' URLs and event filters, not their secrets).
 
 ## Events
 

@@ -6,7 +6,7 @@ import { prevNext } from "@/lib/navigation"
 
 # Language Support
 
-Chatty supports **90+ languages** for bot responses. You can let the bot mirror the visitor's input language automatically, or lock it to a specific language.
+Chatty supports **88 languages** for bot responses. You can let the bot mirror the visitor's input language automatically, or lock it to a specific language.
 
 ## Auto-mirror (default)
 
@@ -14,21 +14,12 @@ By default, the bot detects the language of each visitor's message and replies i
 
 ## Forced language
 
-To always respond in a specific language regardless of the visitor's input:
+To always respond in a specific language regardless of the visitor's input, go to **Dashboard → Bot Settings → Response Language** and choose from the dropdown.
 
-**Via dashboard:** Go to **Bot Settings → Response Language** and choose from the dropdown.
-
-**Via API:** Set the `response_language` field when updating your bot:
-
-```bash
-curl -X PATCH \
-  "https://api.personaliai.com/api/v1/bot" \
-  -H "Authorization: Bearer chatty_sk_your_key" \
-  -H "Content-Type: application/json" \
-  -d '{ "response_language": "fr" }'
-```
-
-Pass an empty string `""` to return to auto-mirror.
+<Note>
+This setting is dashboard-only today — there's no public API endpoint to set it, only `GET /api/v1/bot`
+to read the bot's current configuration (including `response_language`).
+</Note>
 
 ## Supported languages
 
@@ -38,16 +29,16 @@ The full list of supported language codes:
 |---|---|---|---|
 | `en` | English | `zh` | Chinese (Simplified) |
 | `zh-TW` | Chinese (Traditional) | `es` | Spanish |
-| `fr` | French | `de` | German |
-| `pt` | Portuguese | `pt-BR` | Portuguese (Brazil) |
-| `it` | Italian | `ja` | Japanese |
-| `ko` | Korean | `ru` | Russian |
-| `ar` | Arabic | `hi` | Hindi |
-| `bn` | Bengali | `ur` | Urdu |
-| `pa` | Punjabi | `mr` | Marathi |
-| `ta` | Tamil | `te` | Telugu |
-| `gu` | Gujarati | `kn` | Kannada |
-| `ml` | Malayalam | `or` | Odia |
+| `es-MX` | Spanish (Mexico) | `fr` | French |
+| `de` | German | `pt` | Portuguese |
+| `pt-BR` | Portuguese (Brazil) | `it` | Italian |
+| `ja` | Japanese | `ko` | Korean |
+| `ru` | Russian | `ar` | Arabic |
+| `hi` | Hindi | `bn` | Bengali |
+| `ur` | Urdu | `pa` | Punjabi |
+| `mr` | Marathi | `ta` | Tamil |
+| `te` | Telugu | `gu` | Gujarati |
+| `kn` | Kannada | `ml` | Malayalam |
 | `si` | Sinhala | `ne` | Nepali |
 | `nl` | Dutch | `pl` | Polish |
 | `sv` | Swedish | `da` | Danish |
@@ -61,34 +52,33 @@ The full list of supported language codes:
 | `sw` | Swahili | `am` | Amharic |
 | `ha` | Hausa | `yo` | Yoruba |
 | `ig` | Igbo | `zu` | Zulu |
-| `af` | Afrikaans | `th` | Thai |
-| `vi` | Vietnamese | `id` | Indonesian |
-| `ms` | Malay | `tl` | Filipino/Tagalog |
-| `km` | Khmer | `lo` | Lao |
-| `my` | Burmese | `ka` | Georgian |
-| `az` | Azerbaijani | `kk` | Kazakh |
-| `uz` | Uzbek | `hy` | Armenian |
-| `mn` | Mongolian | `tk` | Turkmen |
-| `lt` | Lithuanian | `lv` | Latvian |
-| `et` | Estonian | `sq` | Albanian |
-| `mk` | Macedonian | `bs` | Bosnian |
-| `sl` | Slovenian | `ca` | Catalan |
-| `gl` | Galician | `eu` | Basque |
-| `is` | Icelandic | `mt` | Maltese |
-| `cy` | Welsh | `ga` | Irish |
-| `lb` | Luxembourgish | `ky` | Kyrgyz |
-| `tg` | Tajik | `ps` | Pashto |
-| `sd` | Sindhi | `ku` | Kurdish |
-| `mi` | Māori | `haw` | Hawaiian |
-| `sm` | Samoan | `to` | Tongan |
-| `fj` | Fijian | `mg` | Malagasy |
+| `xh` | Xhosa | `af` | Afrikaans |
+| `th` | Thai | `vi` | Vietnamese |
+| `id` | Indonesian | `ms` | Malay |
+| `tl` | Filipino (Tagalog) | `km` | Khmer |
+| `lo` | Lao | `my` | Burmese (Myanmar) |
+| `ka` | Georgian | `az` | Azerbaijani |
+| `kk` | Kazakh | `uz` | Uzbek |
+| `hy` | Armenian | `mn` | Mongolian |
+| `tk` | Turkmen | `lt` | Lithuanian |
+| `lv` | Latvian | `et` | Estonian |
+| `sq` | Albanian | `mk` | Macedonian |
+| `bs` | Bosnian | `sl` | Slovenian |
+| `ca` | Catalan | `gl` | Galician |
+| `eu` | Basque | `is` | Icelandic |
+| `mt` | Maltese | `cy` | Welsh |
+| `ga` | Irish | `ky` | Kyrgyz |
+| `tg` | Tajik | `ku` | Kurdish |
+| `mi` | Māori | `ht` | Haitian Creole |
+| `so` | Somali | `tt` | Tatar |
+| `yi` | Yiddish | | |
 
-<Note>Language quality depends on the underlying AI model. Claude and GPT-4o provide strong multilingual support for most languages; Gemini Flash is excellent for Asian languages.</Note>
+<Note>Language quality depends on the underlying AI model. This list reflects the languages Chatty's built-in Gemini model has a friendly display name for — see [BYOK](/guides/byok) if you want to use a different provider's model for a specific language.</Note>
 
 ## Widget language
 
 The chat widget UI (placeholder text, buttons, timestamps) follows the browser's `navigator.language` setting automatically. The response language setting only affects the bot's reply content, not the UI chrome.
 
-<Tip>Combine forced language with BYOK to use a model that's optimized for your target language — for example, Gemini 2.5 Pro for Japanese or Arabic content.</Tip>
+<Tip>Combine forced language with BYOK to use a model that's optimized for your target language.</Tip>
 
 <PageNav {...prevNext("/guides/languages")} />

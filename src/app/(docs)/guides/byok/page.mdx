@@ -6,68 +6,58 @@ import { prevNext } from "@/lib/navigation"
 
 # Bring Your Own Key (BYOK)
 
-BYOK lets you power your Chatty bot with your own API key from OpenAI, Anthropic, Google Gemini, or OpenRouter — your key, your quota, your cost.
+BYOK lets you power your Chatty bot with your own API key from OpenAI, Anthropic, or OpenRouter — your key, your quota, your cost.
+
+<Warning>
+BYOK replies skip Chatty's agentic tool-calling (lead capture, calendar booking, and other actions)
+— that stays Gemini-only, since each provider's function-calling schema differs enough that wiring
+them all in is separate work. BYOK replies are still knowledge-base-grounded (the same RAG-augmented
+system prompt is used), just without the ability to take actions mid-conversation.
+</Warning>
 
 ## Why BYOK?
 
-- **Your billing** — charges go directly to your AI provider account.
+- **Your billing** — inference charges go directly to your AI provider account.
 - **Your quota** — no shared rate limits with other Chatty users.
-- **Model access** — use models like GPT-4o, Claude Opus 4, or Gemini 2.5 Ultra that may not be on Chatty's standard plans.
+- **Model access** — use whatever model your provider account supports.
 - **Data agreements** — some enterprise AI contracts require that API calls originate from your own key.
 
 ## Supported providers
 
-| Provider | Models |
+| Provider | Default model (if you don't set one) |
 |---|---|
-| **OpenAI** | `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, `gpt-3.5-turbo` |
-| **Anthropic** | `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5` |
-| **Google Gemini** | `gemini-2.5-pro`, `gemini-2.0-flash`, `gemini-1.5-pro` |
-| **OpenRouter** | Any model listed at [openrouter.ai/models](https://openrouter.ai/models) |
+| **OpenAI** | `gpt-4o` |
+| **Anthropic** | `claude-3-5-sonnet-latest` |
+| **OpenRouter** | `mistralai/mistral-large` — or any model listed at [openrouter.ai/models](https://openrouter.ai/models) |
+
+<Note>Google Gemini isn't a BYOK option — it's Chatty's built-in model and always has full tool-calling support.</Note>
+
+You can set any specific model your provider account supports (e.g. `gpt-4o-mini`, `claude-opus-4-8`) — it isn't validated against a fixed list, so double-check the model name is one your provider actually serves.
 
 ## Setting up BYOK
 
-### Via the dashboard
+BYOK is configured from the dashboard — it's tied to your logged-in account, not the public API key system used elsewhere in these docs.
 
 1. Go to **Dashboard → Settings → AI Model**
-2. Select your provider and model
+2. Select your provider and (optionally) a specific model
 3. Paste your API key into the **Your API Key** field
 4. Click **Save** — the key is encrypted at rest before storage
 
-<Warning>Never share your AI provider key publicly. Keys are stored encrypted and are write-only — you cannot retrieve a saved key from the dashboard.</Warning>
+<Warning>Never share your AI provider key publicly. Keys are stored encrypted and are write-only — you cannot retrieve a saved key from the dashboard once saved, only replace or clear it.</Warning>
 
-### Via the API
-
-```bash title="Set a BYOK key"
-curl -X PATCH \
-  "https://api.personaliai.com/api/v1/bot/byok" \
-  -H "Authorization: Bearer chatty_sk_your_key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "provider": "openai",
-    "model": "gpt-4o",
-    "api_key": "sk-your-openai-key"
-  }'
-```
-
-```bash title="Remove BYOK key (revert to Chatty shared)"
-curl -X DELETE \
-  "https://api.personaliai.com/api/v1/bot/byok" \
-  -H "Authorization: Bearer chatty_sk_your_key"
-```
-
-<Note>The BYOK key is **write-only** — the API never returns the stored key. To rotate it, POST a new key; to remove it, send the DELETE request above.</Note>
+To remove BYOK and revert to Chatty's shared Gemini model, clear the provider/key fields and save again.
 
 ## Security model
 
-- Keys are encrypted with AES-256-GCM before being stored in the database.
+- Keys are encrypted at rest with Fernet (symmetric AES-128-CBC + HMAC) before being stored in the database.
 - The encryption key (`BYOK_ENCRYPTION_KEY`) is a secret stored in the server environment, never in the database.
 - All AI provider calls are made server-side — your key is never exposed to the browser.
-- Audit logs record every AI call without including the key.
+- `GET`-ing your BYOK status never returns the decrypted key — only the provider/model and whether one is configured.
 
 ## Cost considerations
 
 When BYOK is active, AI inference costs are billed directly to your provider account. Chatty still charges your subscription for platform usage (bots, seats, storage, support) but not for token consumption.
 
-<Tip>Use OpenRouter with BYOK to access 100+ models under a single key, including open-source models with lower per-token costs than proprietary options.</Tip>
+<Tip>Use OpenRouter with BYOK to access many models under a single key, including open-source models with lower per-token costs than proprietary options.</Tip>
 
 <PageNav {...prevNext("/guides/byok")} />
