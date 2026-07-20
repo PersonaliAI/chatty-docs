@@ -85,7 +85,17 @@ need to react to messages or leads programmatically (e.g. push them into your ow
 
 <Accordion title="WordPress">
 
-1. In your WordPress admin, go to **Appearance → Theme File Editor → functions.php** and add:
+<Tip>
+The easiest option: install the official **[Chatty WordPress plugin](https://github.com/Damayantha/chatty-wordpress-plugin/releases/latest)**.
+It adds a proper Settings page (Settings → Chatty Widget) — paste your Bot ID and save, no code
+editing at all. [Download the latest release](https://github.com/Damayantha/chatty-wordpress-plugin/releases/download/v1.0.0/chatty-widget.zip),
+then in your WordPress admin go to **Plugins → Add New → Upload Plugin** and upload the zip.
+</Tip>
+
+Prefer to do it manually instead? Either of these work:
+
+1. Go to **Appearance → Theme File Editor → functions.php** (or **Tools → Theme File Editor** on
+some WordPress versions) and add:
 
 ```php
 function chatty_widget() { ?>
@@ -94,8 +104,8 @@ function chatty_widget() { ?>
 add_action('wp_footer', 'chatty_widget');
 ```
 
-2. Alternatively, if you'd rather not edit theme files, install the **Insert Headers and Footers**
-plugin and paste the same `<script>` snippet into its Footer Scripts field. No code editing required.
+2. Or, if you'd rather not edit theme files, install the **Insert Headers and Footers** plugin
+and paste the same `<script>` snippet into its Footer Scripts field.
 
 </Accordion>
 
