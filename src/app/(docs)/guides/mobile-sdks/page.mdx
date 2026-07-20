@@ -65,30 +65,27 @@ struct SupportView: View {
 
 ## Android
 
-<Warning>
-Not yet published to Maven Central — the Gradle publish config (POM metadata, signing) is in place,
-but publishing needs a verified Sonatype account for the `com.personaliai` namespace, which hasn't
-happened yet. Until then, include it as a local module from the source repo:
-</Warning>
+Available via **JitPack** — no Maven Central account needed:
 
 ```kotlin title="settings.gradle.kts"
-include(":chatty-sdk")
-project(":chatty-sdk").projectDir = file("../chatty-android-sdk/chatty-sdk")
+dependencyResolutionManagement {
+    repositories {
+        maven { url = uri("https://jitpack.io") }
+    }
+}
 ```
 
 ```kotlin title="app/build.gradle.kts"
 dependencies {
-    implementation(project(":chatty-sdk"))
+    implementation("com.github.Damayantha:chatty-android-sdk:v1.0.2")
 }
 ```
 
-Clone [github.com/Damayantha/chatty-android-sdk](https://github.com/Damayantha/chatty-android-sdk) alongside your app, or add it as a git submodule. Once published, the dependency will be:
-
-```kotlin title="app/build.gradle.kts (once published)"
-dependencies {
-    implementation("com.personaliai:chatty-android-sdk:1.0.1")
-}
-```
+<Note>
+Not yet on Maven Central — the Gradle publish config (POM metadata, signing) is already in place,
+it just needs a verified Sonatype account for the `com.personaliai` namespace. Once that happens,
+the dependency becomes `implementation("com.personaliai:chatty-android-sdk:1.0.1")` instead.
+</Note>
 
 ### Floating launcher
 
