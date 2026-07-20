@@ -1,8 +1,9 @@
 export const metadata = { title: "List Knowledge Sources", description: "Return all knowledge sources attached to the bot." }
 
 import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
-import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { ResponseField } from "@/components/mdx/ParamField"
 import { Expandable } from "@/components/mdx/Expandable"
+import { Note } from "@/components/mdx/Callout"
 import { PageNav } from "@/components/PageNav"
 import { prevNext } from "@/lib/navigation"
 
@@ -10,14 +11,11 @@ import { prevNext } from "@/lib/navigation"
 
 <ApiEndpointBadge method="GET" path="/api/v1/knowledge" />
 
-Returns all knowledge sources (text snippets, crawled URLs, uploaded documents) that the bot uses when answering questions.
+Returns all knowledge sources (text snippets and crawled URLs) that the bot uses when answering questions.
 
 **Required scope:** `read`
 
-## Query parameters
-
-<ParamField query="limit" type="integer" default="50">Number of sources to return. Max 200.</ParamField>
-<ParamField query="offset" type="integer" default="0">Zero-based offset for pagination.</ParamField>
+<Note>This endpoint takes no query parameters — it always returns the full list, newest first.</Note>
 
 ## Response
 
@@ -25,15 +23,16 @@ Returns all knowledge sources (text snippets, crawled URLs, uploaded documents) 
   Array of knowledge source objects.
   <Expandable title="Source object fields">
     <ResponseField name="id" type="string">UUID of the source.</ResponseField>
-    <ResponseField name="bot_id" type="string">Bot this source belongs to.</ResponseField>
-    <ResponseField name="type" type="string">`"text"`, `"url"`, or `"document"`.</ResponseField>
-    <ResponseField name="title" type="string">Display title or URL.</ResponseField>
-    <ResponseField name="content_preview" type="string">First 200 characters of the content.</ResponseField>
-    <ResponseField name="status" type="string">`"ready"`, `"processing"`, or `"error"`.</ResponseField>
+    <ResponseField name="type" type="string">`"text"` or `"url"`.</ResponseField>
+    <ResponseField name="name" type="string">Display name (for text sources) or the crawled URL.</ResponseField>
+    <ResponseField name="status" type="string">Always `"trained"` — sources are indexed synchronously when added.</ResponseField>
+    <ResponseField name="char_count" type="integer">Length of the indexed content, in characters.</ResponseField>
+    <ResponseField name="crawl_schedule" type="string">For URL sources: `"off"`, `"daily"`, `"weekly"`, or `"monthly"`.</ResponseField>
+    <ResponseField name="next_crawl_at" type="string">ISO 8601 timestamp of the next scheduled re-crawl, if any.</ResponseField>
+    <ResponseField name="last_crawled_at" type="string">ISO 8601 timestamp of the last crawl, if any.</ResponseField>
     <ResponseField name="created_at" type="string">ISO 8601 timestamp.</ResponseField>
   </Expandable>
 </ResponseField>
-<ResponseField name="total" type="integer">Total number of sources for this bot.</ResponseField>
 
 ## Example
 
@@ -48,24 +47,27 @@ curl "https://api.personaliai.com/api/v1/knowledge" \
   "sources": [
     {
       "id": "ks-uuid-001",
-      "bot_id": "a1b2c3d4-...",
       "type": "url",
-      "title": "https://acme.com/pricing",
-      "content_preview": "Acme Corp Pricing — Starter: $29/mo, Pro: $99/mo, Enterprise: custom...",
-      "status": "ready",
+      "name": "https://acme.com/pricing",
+      "status": "trained",
+      "char_count": 1842,
+      "crawl_schedule": "weekly",
+      "next_crawl_at": "2026-07-08T09:00:00Z",
+      "last_crawled_at": "2026-07-01T09:00:00Z",
       "created_at": "2026-07-01T09:00:00Z"
     },
     {
       "id": "ks-uuid-002",
-      "bot_id": "a1b2c3d4-...",
       "type": "text",
-      "title": "Refund Policy",
-      "content_preview": "All purchases are eligible for a full refund within 30 days...",
-      "status": "ready",
+      "name": "Refund Policy",
+      "status": "trained",
+      "char_count": 612,
+      "crawl_schedule": null,
+      "next_crawl_at": null,
+      "last_crawled_at": null,
       "created_at": "2026-06-28T11:30:00Z"
     }
-  ],
-  "total": 2
+  ]
 }
 ```
 

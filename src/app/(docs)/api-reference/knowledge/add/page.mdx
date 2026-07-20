@@ -1,4 +1,4 @@
-﻿export const metadata = { title: "Add Knowledge Source", description: "Add a text snippet or URL as a knowledge source." }
+export const metadata = { title: "Add Knowledge Source", description: "Add a text snippet or URL as a knowledge source." }
 
 import { Note } from "@/components/mdx/Callout"
 import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
@@ -10,30 +10,42 @@ import { prevNext } from "@/lib/navigation"
 
 <ApiEndpointBadge method="POST" path="/api/v1/knowledge" />
 
-Add a text snippet or a URL to the bot's knowledge base. URL sources are fetched and indexed automatically.
+Add a text snippet or a URL to the bot's knowledge base. Both are fetched/indexed synchronously — the source is fully searchable by the time this call returns.
 
 **Required scope:** `write`
-
-<Note>URL sources may take a few seconds to process. Check the `status` field via **List Knowledge Sources** to confirm indexing completed.</Note>
 
 ## Request body
 
 <ParamField body="type" type="string" required>
   `"text"` to add raw text, or `"url"` to crawl and index a web page.
 </ParamField>
-<ParamField body="content" type="string" required>
-  For `"text"`: the text content to add (max 50,000 chars).
-  For `"url"`: the fully-qualified URL to crawl (must start with `https://`).
+<ParamField body="name" type="string" required>
+  A display name for the source. For URL sources this doesn't need to match the URL itself.
 </ParamField>
-<ParamField body="title" type="string">
-  Optional human-readable label. Defaults to the URL or the first 80 characters of text.
+<ParamField body="content" type="string">
+  Required when `type` is `"text"` — the text content to add (max 100,000 characters / ~100 KB). Ignored for `type: "url"`.
+</ParamField>
+<ParamField body="url" type="string">
+  Required when `type` is `"url"` — the fully-qualified page URL to crawl. Ignored for `type: "text"`.
 </ParamField>
 
 ## Response
 
-<ResponseField name="id" type="string">UUID of the newly created source.</ResponseField>
-<ResponseField name="status" type="string">`"ready"` for text sources; `"processing"` for URL sources until indexed.</ResponseField>
-<ResponseField name="message" type="string">Confirmation message.</ResponseField>
+<ResponseField name="success" type="boolean">Always `true` on a 200 response.</ResponseField>
+<ResponseField name="chars" type="integer">URL sources only — the number of characters extracted from the page.</ResponseField>
+<ResponseField name="source" type="object">
+  The created source row (same shape as objects returned by **List Knowledge Sources**): `id`, `type`, `name`, `status`, `char_count`, `crawl_schedule`, `next_crawl_at`, `last_crawled_at`, `created_at`.
+</ResponseField>
+
+## Errors
+
+| Status | When |
+|---|---|
+| `400` | `type` isn't `text`/`url`, `name` is missing, or `content`/`url` is missing or empty for the given type, or text `content` exceeds 100,000 characters. |
+| `401` | Missing or invalid API key. |
+| `403` | Missing `write` scope. |
+| `422` | For `type: "url"` — the page was fetched but returned no usable text content. |
+| `502` | For `type: "url"` — the page couldn't be fetched at all. |
 
 ## Examples
 
@@ -44,7 +56,7 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -d '{
     "type": "text",
-    "title": "Return Policy",
+    "name": "Return Policy",
     "content": "We offer a 30-day money-back guarantee on all purchases. To request a refund, email support@acme.com with your order number."
   }'
 ```
@@ -54,16 +66,46 @@ curl -X POST \
   "https://api.personaliai.com/api/v1/knowledge" \
   -H "Authorization: Bearer chatty_sk_your_key" \
   -H "Content-Type: application/json" \
-  -d '{ "type": "url", "content": "https://acme.com/docs/faq" }'
+  -d '{ "type": "url", "name": "FAQ page", "url": "https://acme.com/docs/faq" }'
 ```
 
-**201 Created:**
+**200 OK (text):**
 ```json
 {
-  "id": "ks-uuid-003",
-  "status": "processing",
-  "message": "URL queued for indexing"
+  "success": true,
+  "source": {
+    "id": "ks-uuid-003",
+    "type": "text",
+    "name": "Return Policy",
+    "status": "trained",
+    "char_count": 142,
+    "crawl_schedule": null,
+    "next_crawl_at": null,
+    "last_crawled_at": null,
+    "created_at": "2026-07-07T12:00:00Z"
+  }
 }
 ```
+
+**200 OK (url) — note the extra `chars` field:**
+```json
+{
+  "success": true,
+  "chars": 3184,
+  "source": {
+    "id": "ks-uuid-004",
+    "type": "url",
+    "name": "FAQ page",
+    "status": "trained",
+    "char_count": 3184,
+    "crawl_schedule": null,
+    "next_crawl_at": null,
+    "last_crawled_at": null,
+    "created_at": "2026-07-07T12:00:05Z"
+  }
+}
+```
+
+<Note>To keep a URL source fresh automatically, set its `crawl_schedule` afterward from the dashboard (not available via this endpoint yet).</Note>
 
 <PageNav {...prevNext("/api-reference/knowledge/add")} />

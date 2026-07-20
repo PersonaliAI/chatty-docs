@@ -9,28 +9,33 @@ import { prevNext } from "@/lib/navigation"
 
 <ApiEndpointBadge method="GET" path="/api/v1/analytics" />
 
-Returns aggregated metrics — message counts, session counts, and lead counts — for the bot over a given time range.
+Returns aggregated metrics — message counts, session counts, lead counts, and knowledge base size — for the bot.
 
 **Required scope:** `read`
 
 ## Query parameters
 
 <ParamField query="since" type="string">
-  ISO 8601 datetime string. Only events on or after this timestamp are counted. Defaults to 30 days ago.
+  ISO 8601 datetime string. Only messages/leads on or after this timestamp are counted. **Omit it (or pass nothing) for lifetime totals** — there's no default 30-day window.
 
   Example: `2026-07-01T00:00:00Z`
 </ParamField>
 
 ## Response
 
-<ResponseField name="since" type="string">The start of the analytics window (ISO 8601).</ResponseField>
+<ResponseField name="bot_id" type="string">The bot this summary is for.</ResponseField>
+<ResponseField name="since" type="string">Echoes back the `since` filter you passed, or `null` if omitted.</ResponseField>
 <ResponseField name="total_messages" type="integer">All messages (user + assistant) in the period.</ResponseField>
-<ResponseField name="total_sessions" type="integer">Unique conversation sessions started.</ResponseField>
-<ResponseField name="total_leads" type="integer">Leads captured by the bot.</ResponseField>
+<ResponseField name="user_messages" type="integer">Messages sent by visitors.</ResponseField>
+<ResponseField name="bot_messages" type="integer">Messages sent by the assistant.</ResponseField>
+<ResponseField name="unique_sessions" type="integer">Distinct conversation sessions in the period.</ResponseField>
+<ResponseField name="total_leads" type="integer">Leads captured by the bot in the period.</ResponseField>
+<ResponseField name="knowledge_sources" type="integer">Total knowledge sources currently attached to the bot (not filtered by `since`).</ResponseField>
+<ResponseField name="knowledge_kb" type="integer">Total size of the knowledge base, in kilobytes (not filtered by `since`).</ResponseField>
 
 ## Examples
 
-```bash title="Last 30 days (default)"
+```bash title="Lifetime totals"
 curl "https://api.personaliai.com/api/v1/analytics" \
   -H "Authorization: Bearer chatty_sk_your_key"
 ```
@@ -43,16 +48,21 @@ curl "https://api.personaliai.com/api/v1/analytics?since=2026-07-01T00:00:00Z" \
 **200 OK:**
 ```json
 {
-  "since": "2026-06-07T00:00:00Z",
+  "bot_id": "a1b2c3d4-...",
+  "since": "2026-07-01T00:00:00Z",
   "total_messages": 4821,
-  "total_sessions": 962,
-  "total_leads": 147
+  "user_messages": 2410,
+  "bot_messages": 2411,
+  "unique_sessions": 962,
+  "total_leads": 147,
+  "knowledge_sources": 12,
+  "knowledge_kb": 340
 }
 ```
 
 ## Notes
 
-- Counts update in near real-time (typically within a few seconds of each event).
-- For daily or hourly breakdowns, use the **Usage Stats** endpoint which provides per-day granularity.
+- Counts reflect the database at request time — there's no caching delay.
+- There's no separate per-day/hourly breakdown endpoint — call this repeatedly with different `since` values if you need a time series.
 
 <PageNav {...prevNext("/api-reference/analytics/summary")} />

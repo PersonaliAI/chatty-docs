@@ -23,8 +23,7 @@ Permanently removes a knowledge source. The bot will no longer use the content w
 ## Response
 
 <ResponseField name="success" type="boolean">Always `true`.</ResponseField>
-<ResponseField name="id" type="string">The ID of the deleted source.</ResponseField>
-<ResponseField name="deleted" type="boolean">Always `true`.</ResponseField>
+<ResponseField name="deleted_id" type="string">The ID of the deleted source.</ResponseField>
 
 ## Example
 
@@ -36,12 +35,17 @@ curl -X DELETE \
 
 **200 OK:**
 ```json
-{ "success": true, "id": "ks-uuid-003", "deleted": true }
+{ "success": true, "deleted_id": "ks-uuid-003" }
 ```
 
-**404 — not found:**
+**404 — source doesn't exist:**
 ```json
-{ "detail": "Knowledge source not found or belongs to a different bot" }
+{ "detail": "Source not found" }
+```
+
+**403 — source belongs to a different bot:**
+```json
+{ "detail": "Source belongs to a different bot" }
 ```
 
 <PageNav {...prevNext("/api-reference/knowledge/delete")} />
