@@ -50,7 +50,7 @@ export function Sidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () =>
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[--text-muted] hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
           <span className="text-xs">&#8599;</span> chatty.personaliai.com
         </a>
-        <a href="https://api.personaliai.com/docs" target="_blank" rel="noreferrer"
+        <a href="https://api.chatty.personaliai.com/docs" target="_blank" rel="noreferrer"
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[--text-muted] hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
           <span className="text-xs">&#8599;</span> Swagger UI
         </a>

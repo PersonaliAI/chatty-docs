@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Search, Moon, Sun, Menu, X, ExternalLink } from "lucide-react";
@@ -94,10 +94,10 @@ export function TopNav({ onMenuToggle, menuOpen }: { onMenuToggle: () => void; m
           className="flex-1 min-w-0 max-w-xs flex items-center gap-2 px-3 py-1.5 text-sm text-[--text-muted] bg-[--bg-subtle] border border-[--border] rounded-lg hover:border-brand-500/50 transition-colors">
           <Search size={13} className="shrink-0" />
           <span className="flex-1 min-w-0 truncate text-left text-[--text-subtle]">Search docs...</span>
-          <kbd className="text-[10px] border border-[--border] rounded px-1 py-0.5 hidden sm:block">⌘K</kbd>
+          <kbd className="text-[10px] border border-[--border] rounded px-1 py-0.5 hidden sm:block">?K</kbd>
         </button>
 
-        {/* Spacer only on desktop — on mobile the search takes the free space */}
+        {/* Spacer only on desktop � on mobile the search takes the free space */}
         <div className="hidden md:block flex-1" />
 
         {/* Links */}

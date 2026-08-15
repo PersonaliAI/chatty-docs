@@ -51,7 +51,7 @@ Add a text snippet or a URL to the bot's knowledge base. Both are fetched/indexe
 
 ```bash title="Add text snippet"
 curl -X POST \
-  "https://api.personaliai.com/api/v1/knowledge" \
+  "https://api.chatty.personaliai.com/api/v1/knowledge" \
   -H "Authorization: Bearer chatty_sk_your_key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -63,7 +63,7 @@ curl -X POST \
 
 ```bash title="Add URL"
 curl -X POST \
-  "https://api.personaliai.com/api/v1/knowledge" \
+  "https://api.chatty.personaliai.com/api/v1/knowledge" \
   -H "Authorization: Bearer chatty_sk_your_key" \
   -H "Content-Type: application/json" \
   -d '{ "type": "url", "name": "FAQ page", "url": "https://acme.com/docs/faq" }'

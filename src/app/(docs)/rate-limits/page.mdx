@@ -36,7 +36,7 @@ import httpx, time
 def chat_with_retry(text, session_id, retries=3):
     for attempt in range(retries):
         r = httpx.post(
-            "https://api.personaliai.com/api/v1/chat",
+            "https://api.chatty.personaliai.com/api/v1/chat",
             headers={"Authorization": "Bearer chatty_sk_key"},
             json={"text": text, "session_id": session_id},
         )
@@ -52,7 +52,7 @@ def chat_with_retry(text, session_id, retries=3):
 ```javascript title="Node.js — exponential backoff"
 async function chat(text, sessionId, retries = 3) {
   for (let i = 0; i < retries; i++) {
-    const res = await fetch("https://api.personaliai.com/api/v1/chat", {
+    const res = await fetch("https://api.chatty.personaliai.com/api/v1/chat", {
       method: "POST",
       headers: { Authorization: "Bearer chatty_sk_key", "Content-Type": "application/json" },
       body: JSON.stringify({ text, session_id: sessionId }),
