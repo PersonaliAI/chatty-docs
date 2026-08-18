@@ -42,6 +42,7 @@ export const navigation: NavGroup[] = [
       { title: "Webhooks",      href: "/guides/webhooks" },
       { title: "BYOK",          href: "/guides/byok" },
       { title: "Languages",     href: "/guides/languages" },
+      { title: "Google Auth Setup", href: "/guides/google-auth-setup" },
     ],
   },
   {

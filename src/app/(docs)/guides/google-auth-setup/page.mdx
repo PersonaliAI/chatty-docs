@@ -1,0 +1,89 @@
+export const metadata = { title: "Google Auth Setup", description: "Set up Google OAuth for Calendar/Gmail booking integration on a self-hosted Chatty instance." }
+
+import { Note, Tip, Warning } from "@/components/mdx/Callout"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Google Auth Setup
+
+Chatty uses Google OAuth for two things: **Sign-in** (via Supabase Auth) and **Calendar/Gmail booking** (a bot connecting its owner's calendar to book real meetings). This guide covers both, using your own Firebase/GCP project — required if you're self-hosting.
+
+<Note>
+  If you're only running the chat widget with no meeting-booking feature, you can skip the Calendar/Gmail section entirely and leave `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` blank in `backend/.env`.
+</Note>
+
+## 1. Create (or pick) a Google Cloud project
+
+Firebase projects **are** GCP projects — if you already created a Firebase project for Supabase Auth or App Hosting, use that same project here rather than creating a second one.
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com)
+2. Select your project from the top-left project picker (or **New Project** if starting fresh)
+
+## 2. Configure the OAuth consent screen
+
+Before you can create credentials, Google requires a consent screen.
+
+1. **APIs & Services → OAuth consent screen**
+2. User type: **External** (unless every user is inside your Google Workspace org, then **Internal**)
+3. Fill in app name, support email, and developer contact email
+4. Scopes: add `.../auth/calendar` and `.../auth/gmail.readonly` if you want Calendar/Gmail booking — skip if sign-in only
+5. Test users: while the app is in "Testing" mode, add your own Google account here, or Google will reject the OAuth flow for anyone not listed
+
+<Warning>
+  An app stuck in "Testing" mode only allows the exact Google accounts you list as test users to sign in. Submit for verification (APIs & Services → OAuth consent screen → Publish App) before real users need this — verification can take a few days for sensitive scopes like Calendar/Gmail.
+</Warning>
+
+## 3. Create OAuth 2.0 credentials
+
+1. **APIs & Services → Credentials → Create Credentials → OAuth client ID**
+2. Application type: **Web application**
+3. Authorized redirect URIs — add **both**:
+   - `https://YOUR-BACKEND-URL/auth/google/callback` (Calendar/Gmail booking — chatty-backend's own callback)
+   - Your Supabase project's callback: `https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback` (sign-in)
+4. Save — copy the **Client ID** and **Client Secret** shown
+
+<Tip>
+  Redirect URIs must match **exactly**, including the protocol and trailing path — `http://` vs `https://`, or a missing/extra trailing slash, will fail silently with a `redirect_uri_mismatch` error.
+</Tip>
+
+## 4. Enable the required APIs
+
+**APIs & Services → Library**, search for and enable:
+- **Google Calendar API**
+- **Gmail API** (only needed if the bot reads booking-related emails)
+
+## 5. Wire the credentials into Chatty
+
+**Backend** (`backend/.env`):
+
+```bash
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-your-client-secret
+GOOGLE_REDIRECT_URI=https://YOUR-BACKEND-URL/auth/google/callback
+```
+
+**Supabase** (for sign-in — Supabase Dashboard → Authentication → Providers → Google):
+
+```
+Client ID:     your-client-id.apps.googleusercontent.com
+Client Secret: GOCSPX-your-client-secret
+```
+
+Supabase shows you its own callback URL on that same page — that's the second redirect URI you added in step 3.
+
+## 6. Test it
+
+1. Restart the backend so the new env vars load
+2. From the dashboard, go to a bot's **Integrations** tab → **Connect Google Calendar**
+3. You should land on Google's consent screen, then redirect back with the connection showing as active
+
+## Common issues
+
+| Symptom | Cause |
+|---|---|
+| `redirect_uri_mismatch` | The URI in your `.env` doesn't exactly match one registered in step 3 |
+| `access_blocked: this app's request is invalid` | Consent screen isn't configured, or you're missing required scopes |
+| Works for you, fails for other users | App is still in "Testing" mode — either add them as test users or publish/verify the app |
+| Calendar connects but booking silently fails | Google Calendar API isn't enabled on the project (step 4) |
+
+<PageNav {...prevNext("/guides/google-auth-setup")} />
