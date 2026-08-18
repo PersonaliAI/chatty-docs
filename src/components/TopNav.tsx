@@ -97,7 +97,7 @@ export function TopNav({ onMenuToggle, menuOpen }: { onMenuToggle: () => void; m
           <kbd className="text-[10px] border border-[--border] rounded px-1 py-0.5 hidden sm:block">?K</kbd>
         </button>
 
-        {/* Spacer only on desktop — on mobile the search takes the free space */}
+        {/* Spacer only on desktop â€” on mobile the search takes the free space */}
         <div className="hidden md:block flex-1" />
 
         {/* Links */}
