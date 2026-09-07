@@ -1,0 +1,221 @@
+export const metadata = { title: "Streaming SSE", description: "Stream real-time AI responses token-by-token using Server-Sent Events (SSE)." }
+
+import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Streaming SSE
+
+<ApiEndpointBadge method="POST" path="/api/widget/chat/stream" />
+
+Stream AI replies token-by-token over an HTTP persistent connection using standard **Server-Sent Events (SSE)**. This endpoint powers the interactive chat widget, enabling real-time typing animation and sub-second Time-To-First-Token (TTFT).
+
+<Note>
+**Authentication Options**:
+- **Widget Public Access**: Pass `Authorization: Bearer <bot_id>` or send `bot_id` in the JSON body. Origin header is validated against your bot's domain allowlist.
+- **Server-to-Server API Key**: Pass `Authorization: Bearer chatty_sk_...` to authenticate from your own backend without domain allowlist restrictions.
+</Note>
+
+---
+
+## Request Headers
+
+| Header | Value | Description |
+| :--- | :--- | :--- |
+| `Content-Type` | `application/json` | Required |
+| `Accept` | `text/event-stream` | Required to negotiate SSE stream |
+| `Authorization` | `Bearer <bot_id \| api_key>` | Authentication identifier |
+
+---
+
+## Request Body
+
+<ParamField body="text" type="string" required>
+  The visitor's message text. Max 4,000 characters.
+</ParamField>
+
+<ParamField body="session_id" type="string">
+  Unique conversation thread UUID. If omitted, the backend generates a new session and returns it in the completion event.
+</ParamField>
+
+<ParamField body="visitor_id" type="string">
+  Unique persistent identifier for the visitor (e.g. stored in `localStorage` or visitor cookie). Used to associate multiple sessions with the same visitor.
+</ParamField>
+
+<ParamField body="visitor_timezone" type="string" default="UTC">
+  IANA timezone identifier (e.g. `"America/New_York"`, `"Europe/London"`). Used for time-aware responses and calendar scheduling calculations.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Optional custom key-value payload (e.g. `{"user_id": "cust_123", "plan": "pro"}`). Stored with the session and visible in the Live Inbox.
+</ParamField>
+
+---
+
+## SSE Event Stream Protocol
+
+The server responds with `Content-Type: text/event-stream; charset=utf-8` and emits newline-delimited event frames in the following formats:
+
+### 1. Incremental Token (`event: token`)
+Fired continuously as Gemini outputs each chunk.
+```
+event: token
+data: {"token": "Hello"}
+
+event: token
+data: {"token": " there! How"}
+
+event: token
+data: {"token": " can I help you today?"}
+```
+
+### 2. Stream Completed (`event: done`)
+Fired once the complete answer has generated and persisted to the database thread.
+```
+event: done
+data: {
+  "session_id": "1fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "sources": [
+    {
+      "title": "Pricing & Plans",
+      "url": "https://example.com/pricing"
+    }
+  ]
+}
+```
+
+### 3. Human Takeover Active (`event: paused`)
+Emitted when an operator has paused the bot for human intervention. The AI does not generate a response.
+```
+event: paused
+data: {
+  "reason": "human_takeover",
+  "message": "An agent is reviewing your request."
+}
+```
+
+### 4. Error Occurred (`event: error`)
+Emitted if an exception occurs mid-stream.
+```
+event: error
+data: {
+  "code": "quota_exceeded",
+  "message": "Monthly message allowance reached."
+}
+```
+
+---
+
+## Client Implementations
+
+### JavaScript / TypeScript (Fetch API)
+
+```typescript title="client-stream.ts"
+async function streamChat(prompt: string, sessionId?: string) {
+  const response = await fetch("https://api.chatty.personaliai.com/api/widget/chat/stream", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "text/event-stream",
+      "Authorization": "Bearer YOUR_BOT_ID"
+    },
+    body: JSON.stringify({
+      text: prompt,
+      session_id: sessionId,
+      visitor_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    })
+  });
+
+  if (!response.ok || !response.body) {
+    throw new Error(`Stream error: ${response.statusText}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder("utf-8");
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith("data:")) {
+        const jsonStr = line.replace(/^data:\s*/, "");
+        if (!jsonStr) continue;
+        try {
+          const payload = JSON.parse(jsonStr);
+          if (payload.token) {
+            process.stdout.write(payload.token);
+          } else if (payload.session_id) {
+            console.log("\nStream done. Session ID:", payload.session_id);
+          }
+        } catch (e) {
+          // Incomplete JSON chunk, will resolve on next read
+        }
+      }
+    }
+  }
+}
+```
+
+### Python (HTTPX Async Stream)
+
+```python title="stream_chat.py"
+import asyncio
+import httpx
+import json
+
+async def stream_message(prompt: str, bot_id: str):
+    url = "https://api.chatty.personaliai.com/api/widget/chat/stream"
+    headers = {
+        "Authorization": f"Bearer {bot_id}",
+        "Accept": "text/event-stream",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "text": prompt,
+        "visitor_timezone": "America/New_York"
+    }
+
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        async with client.stream("POST", url, headers=headers, json=payload) as response:
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                if line.startswith("data:"):
+                    raw_data = line.replace("data:", "").strip()
+                    if not raw_data:
+                        continue
+                    event_data = json.loads(raw_data)
+                    if "token" in event_data:
+                        print(event_data["token"], end="", flush=True)
+                    elif "session_id" in event_data:
+                        print(f"\n[Finished: {event_data['session_id']}]")
+
+asyncio.run(stream_message("Explain your refund policy", "YOUR_BOT_ID"))
+```
+
+### cURL
+
+```bash title="Terminal"
+curl -N -X POST https://api.chatty.personaliai.com/api/widget/chat/stream \
+  -H "Authorization: Bearer YOUR_BOT_ID" \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream" \
+  -d '{
+    "text": "What integrations do you support?",
+    "visitor_timezone": "UTC"
+  }'
+```
+
+<Tip>
+The `-N` (or `--no-buffer`) flag in cURL disables client-side output buffering, allowing you to view tokens rendering immediately in your terminal.
+</Tip>
+
+<PageNav {...prevNext("/api-reference/chat/stream-message")} />

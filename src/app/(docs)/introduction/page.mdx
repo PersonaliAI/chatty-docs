@@ -1,4 +1,4 @@
-export const metadata = { title: "Introduction", description: "Build powerful AI chat experiences with the Chatty API." }
+export const metadata = { title: "Introduction", description: "Build and deploy enterprise AI chat assistants, multimodal agents, and automated workflows with the Chatty platform." }
 
 import { Card, CardGroup } from "@/components/mdx/Card"
 import { PageNav } from "@/components/PageNav"
@@ -6,65 +6,87 @@ import { prevNext } from "@/lib/navigation"
 
 # Introduction
 
-**Chatty** is an AI chatbot platform — build, train, and deploy intelligent chat assistants for your website, mobile app, or any product without writing AI code.
+**Chatty** is an enterprise AI chatbot and agent orchestration platform. Build, train, and deploy intelligent conversational assistants for your website, web app, WhatsApp, Slack, or mobile applications — backed by custom knowledge, real-time calendar scheduling, and live human takeover.
 
-The **Chatty API** gives you programmatic access to everything: send messages, read leads, manage knowledge sources, and pull analytics — all from your own backend.
+The **Chatty Developer Platform** gives you full programmatic access: stream tokens via Server-Sent Events (SSE), ingest multimodal files and voice notes, manage knowledge vectors, automate meetings, and operate bots using autonomous AI coding agents via the Model Context Protocol (MCP).
 
-## What you can build
+---
+
+## Core Capabilities
 
 <CardGroup cols={2}>
-  <Card title="Custom Chat Interfaces" icon="💬" href="/api-reference/chat/send-message">
-    Embed the bot in your own React, Vue, or native app. Stream messages directly — no iFrame required.
+  <Card title="Streaming & Multimodal" icon="⚡" href="/api-reference/chat/stream-message">
+    Stream real-time AI responses token-by-token over SSE. Accept image attachments, documents, and voice audio notes.
   </Card>
-  <Card title="CRM Integrations" icon="🗄️" href="/api-reference/leads/list">
-    Sync captured leads to HubSpot, Salesforce, or any CRM. Pull leads via API and push them wherever you need.
+  <Card title="Live Inbox & Human Takeover" icon="👥" href="/guides/human-takeover">
+    Seamlessly transition conversations from AI automation to human customer support agents with real-time presence.
   </Card>
-  <Card title="Knowledge Automation" icon="🧠" href="/api-reference/knowledge/add">
-    Keep your bot's knowledge base fresh. Trigger URL crawls, add content from your CMS, and remove stale sources programmatically.
+  <Card title="Cloud Drive & Vector RAG" icon="🧠" href="/guides/knowledge-base-rag">
+    Sync Google Drive, OneDrive, Notion, and web sitemaps directly into high-dimensional vector search for grounded citations.
   </Card>
-  <Card title="Analytics Dashboards" icon="📊" href="/api-reference/analytics/summary">
-    Build internal reporting on conversation volume, lead conversion, and response quality.
+  <Card title="Calendar & Scheduling" icon="📅" href="/guides/calendar-scheduling">
+    Automate appointment booking in-chat with Google Calendar, Microsoft Outlook, and Zoom video meetings.
+  </Card>
+  <Card title="Multi-Channel Ecosystem" icon="🌐" href="/guides/react-sdk">
+    Deploy with the native React SDK (`@personaliai/chatty-react`), WordPress plugin, WhatsApp Business, or Slack commands.
+  </Card>
+  <Card title="MCP Agent Integration" icon="🤖" href="/guides/mcp">
+    Control your entire bot fleet directly from Cursor IDE or Claude Desktop using 8 dedicated MCP tool suites.
   </Card>
 </CardGroup>
 
-## Base URL
+---
 
-All API requests go to:
+## Base API URL
+
+All public and developer API requests are served over TLS 1.3:
 
 ```
 https://api.chatty.personaliai.com
 ```
 
-## Quick example
+---
+
+## Quick Example (Streaming SSE)
 
 ```bash
-curl -X POST https://api.chatty.personaliai.com/api/v1/chat \
-  -H "Authorization: Bearer chatty_sk_your_key_here" \
+curl -N -X POST https://api.chatty.personaliai.com/api/widget/chat/stream \
+  -H "Authorization: Bearer YOUR_BOT_ID" \
   -H "Content-Type: application/json" \
-  -d '{"text": "What are your pricing plans?", "session_id": "user-abc"}'
+  -H "Accept: text/event-stream" \
+  -d '{
+    "text": "What enterprise features do you offer?",
+    "visitor_timezone": "America/New_York"
+  }'
 ```
 
-```json
-{
-  "reply": "We offer three plans: Starter (free), Pro ($29/mo), and Business ($99/mo)...",
-  "session_id": "user-abc"
-}
+```
+event: token
+data: {"token": "We provide"}
+
+event: token
+data: {"token": " custom domain allowlisting, SSO, RAG sync, and human takeover."}
+
+event: done
+data: {"session_id": "1fa85f64-5717-4562-b3fc-2c963f66afa6"}
 ```
 
-## Next steps
+---
+
+## Explore the Docs
 
 <CardGroup cols={2}>
-  <Card title="Quickstart" icon="🚀" href="/quickstart">
-    Get your first API response in under 5 minutes.
+  <Card title="Platform Architecture" icon="🏛️" href="/architecture">
+    Review the ASGI concurrency model, connection pooling, and security boundaries.
   </Card>
-  <Card title="Authentication" icon="🔑" href="/authentication">
-    API keys, scopes, and IP allowlists.
+  <Card title="Quickstart Guide" icon="🚀" href="/quickstart">
+    Get your first chatbot embedded and responding in under 5 minutes.
   </Card>
-  <Card title="Rate Limits" icon="⚡" href="/rate-limits">
-    Understand the limits and how to work within them.
+  <Card title="Security & Privacy" icon="🛡️" href="/security">
+    Anti-SSRF IP pinning, asymmetric JWKS verification, and GDPR compliance.
   </Card>
-  <Card title="Embed Widget" icon="🔌" href="/guides/embed-widget">
-    Add Chatty to any website with one line of HTML.
+  <Card title="Self-Hosting" icon="🐳" href="/guides/self-hosting">
+    Deploy Chatty on Google Cloud Run, AWS, or Docker containers.
   </Card>
 </CardGroup>
 

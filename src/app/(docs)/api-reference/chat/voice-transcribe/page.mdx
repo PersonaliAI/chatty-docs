@@ -1,0 +1,144 @@
+export const metadata = { title: "Voice Transcription", description: "Transcribe voice audio clips into text using server-side Gemini multimodal audio models." }
+
+import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Voice Transcription
+
+<ApiEndpointBadge method="POST" path="/api/widget/transcribe" />
+
+Transcribe recorded voice clips into clean, punctuated text. The audio is processed server-side using Google Gemini's native audio understanding pipeline, supporting multi-language speech recognition, technical terminology, and automatic noise suppression.
+
+---
+
+## Endpoint Specifications
+
+- **Content-Type**: `multipart/form-data`
+- **Supported Audio Formats**: `audio/webm`, `audio/wav`, `audio/mpeg` (MP3), `audio/ogg`, `audio/x-m4a`
+- **Maximum Audio Duration**: Up to 3 minutes (max 25 MB)
+
+---
+
+## Request Form Fields
+
+<ParamField body="file" type="file" required>
+  Audio recording file or binary blob from the visitor's microphone.
+</ParamField>
+
+<ParamField body="bot_id" type="string">
+  Bot identifier. When provided, the transcriber applies vocabulary hints derived from the bot's custom knowledge base and primary language settings.
+</ParamField>
+
+<ParamField body="language" type="string" default="auto">
+  ISO 639-1 language code hint (e.g. `"en"`, `"es"`, `"fr"`, `"de"`). Defaults to `"auto"` for automatic language identification.
+</ParamField>
+
+---
+
+## Response
+
+<ResponseField name="text" type="string">
+  The transcribed text, with capitalization and punctuation.
+</ResponseField>
+
+<ResponseField name="duration_seconds" type="number">
+  Detected audio length in seconds.
+</ResponseField>
+
+<ResponseField name="language" type="string">
+  Detected or confirmed language code.
+</ResponseField>
+
+---
+
+## Browser Microphone Pipeline
+
+Here is a complete browser implementation that captures microphone audio via the HTML5 `MediaRecorder` API and posts it directly to `/api/widget/transcribe`:
+
+```typescript title="voice-recorder.ts"
+class ChattyVoiceRecorder {
+  private mediaRecorder: MediaRecorder | null = null;
+  private audioChunks: Blob[] = [];
+
+  async startRecording(): Promise<void> {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    this.audioChunks = [];
+    this.mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+
+    this.mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        this.audioChunks.push(event.data);
+      }
+    };
+
+    this.mediaRecorder.start();
+  }
+
+  async stopAndTranscribe(botId: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.mediaRecorder) {
+        return reject(new Error("Recorder not initialized"));
+      }
+
+      this.mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(this.audioChunks, { type: "audio/webm" });
+        const formData = new FormData();
+        formData.append("file", audioBlob, "voice_input.webm");
+        formData.append("bot_id", botId);
+
+        try {
+          const res = await fetch("https://api.chatty.personaliai.com/api/widget/transcribe", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) {
+            throw new Error(`Transcription failed with status ${res.status}`);
+          }
+
+          const data = await res.json();
+          resolve(data.text);
+        } catch (err) {
+          reject(err);
+        } finally {
+          // Clean up microphone tracks
+          this.mediaRecorder?.stream.getTracks().forEach((track) => track.stop());
+        }
+      };
+
+      this.mediaRecorder.stop();
+    });
+  }
+}
+```
+
+---
+
+## Examples
+
+### cURL
+
+```bash title="Terminal"
+curl -X POST https://api.chatty.personaliai.com/api/widget/transcribe \
+  -F "file=@/path/to/voice_note.webm;type=audio/webm" \
+  -F "bot_id=YOUR_BOT_ID" \
+  -F "language=en"
+```
+
+**200 OK Response:**
+```json
+{
+  "text": "Could you please schedule a demonstration for Tuesday afternoon at three?",
+  "duration_seconds": 4.85,
+  "language": "en"
+}
+```
+
+<Tip>
+Once transcribed, the resulting text string can be immediately submitted to [`/api/widget/chat/stream`](/api-reference/chat/stream-message) or [`/api/v1/chat`](/api-reference/chat/send-message).
+</Tip>
+
+<PageNav {...prevNext("/api-reference/chat/voice-transcribe")} />

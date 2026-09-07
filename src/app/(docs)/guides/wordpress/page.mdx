@@ -1,0 +1,105 @@
+export const metadata = { title: "WordPress Plugin", description: "Install and configure the official PersonaliAI Customer Support Chatbot plugin for WordPress." }
+
+import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
+import { Card, CardGroup } from "@/components/mdx/Card"
+import { ParamField } from "@/components/mdx/ParamField"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# WordPress Integration
+
+The official **PersonaliAI Customer Support Chatbot** WordPress plugin connects your Chatty AI agent to any WordPress site in seconds. It injects the responsive chat widget, synchronizes logged-in user profiles, and provides flexible shortcodes for embedding bots inside Elementor, Gutenberg, or WooCommerce pages.
+
+---
+
+## Installation
+
+<CardGroup cols={2}>
+  <Card title="Method A: Plugin Directory" icon="🔌">
+    1. Navigate to <b>Plugins &rarr; Add New Plugin</b> in your WP Admin.<br/>
+    2. Search for <code>PersonaliAI Customer Support Chatbot</code>.<br/>
+    3. Click <b>Install Now</b>, then <b>Activate</b>.
+  </Card>
+  <Card title="Method B: Manual ZIP Upload" icon="📦">
+    1. Download the latest <code>.zip</code> package from the PersonaliAI dashboard.<br/>
+    2. Go to <b>Plugins &rarr; Add New &rarr; Upload Plugin</b>.<br/>
+    3. Choose the ZIP file, upload, and click <b>Activate Plugin</b>.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration
+
+Once activated, open **Settings &rarr; PersonaliAI Chatbot** in your WordPress dashboard:
+
+```
++-------------------------------------------------------------+
+| PersonaliAI Customer Support Chatbot Settings               |
++-------------------------------------------------------------+
+| Bot ID:              [ 1fa85f64-5717-4562-b3fc-2c963f66afa6 ] |
+| API Host:            [ https://api.chatty.personaliai.com  ] |
+| Enable Floating Chat: [x] Yes                               |
+| Auto Open Delay (s): [ 5   ]                                |
+| Exclude Paths:       [ /checkout/*, /cart/*, /wp-admin/*   ] |
+| Sync Logged-In User: [x] Pass Name & Email automatically    |
++-------------------------------------------------------------+
+```
+
+### Settings Fields
+
+<ParamField body="Bot ID" type="string" required>
+  Your unique Bot UUID found in your Chatty Bot Dashboard under <b>Settings &rarr; General</b>.
+</ParamField>
+
+<ParamField body="API Host" type="string" default="https://api.chatty.personaliai.com">
+  The backend API server. Only change this if you are using an enterprise on-premise proxy or self-hosted backend.
+</ParamField>
+
+<ParamField body="Enable Floating Chat" type="boolean" default="true">
+  Automatically mounts the floating launcher icon in the bottom corner across your public site.
+</ParamField>
+
+<ParamField body="Exclude Paths" type="string">
+  Comma-separated list of path globs where the floating widget should be disabled (e.g. `/cart/*`, `/checkout/*`, `/my-account/orders/*`).
+</ParamField>
+
+<ParamField body="Sync Logged-In User" type="boolean" default="true">
+  When checked, the plugin passes `wp_get_current_user()` data (display name, email address, and user ID) to the chatbot session, eliminating the need to re-ask the visitor for their contact info.
+</ParamField>
+
+---
+
+## Shortcodes
+
+Use shortcodes to display the chat widget inline on specific pages, knowledge hubs, or inside page builders (Elementor, Beaver Builder, Divi, Gutenberg):
+
+### 1. Inline Support Desk
+Renders a full container chat widget inside your content area:
+
+```html
+[personaliai_chat inline="true" height="650px" width="100%"]
+```
+
+### 2. Custom Bot on Specific Landing Pages
+Override the global Bot ID for dedicated campaign pages:
+
+```html
+[personaliai_chat bot_id="custom-sales-bot-uuid" position="bottom-left"]
+```
+
+---
+
+## WooCommerce Compatibility
+
+The plugin automatically detects active WooCommerce installations. When a customer chats while viewing a product:
+
+1. **Product Context Injection**: The current product name, SKU, price, and stock status are supplied to the bot's temporary session context.
+2. **Order Lookup Assistant**: If the customer asks *"Where is my order?"*, the bot can utilize the logged-in customer's session to check shipping tracking status.
+3. **Cart Abandonment Prevention**: Set proactive trigger messages when a shopper lingers on the checkout page for more than 45 seconds.
+
+<Tip>
+Remember to whitelist your WordPress domain in the Chatty dashboard under **Bot Settings &rarr; Security &rarr; Allowed Domains** (e.g. `yourstore.com` and `www.yourstore.com`).
+</Tip>
+
+<PageNav {...prevNext("/guides/wordpress")} />

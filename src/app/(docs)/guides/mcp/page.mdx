@@ -1,32 +1,87 @@
-export const metadata = { title: "MCP Server", description: "Connect an MCP client (like Claude Desktop) to create and manage your Chatty bots." }
+export const metadata = { title: "MCP Server", description: "Connect Claude Desktop, Cursor, or AI coding agents to control and automate your Chatty bots via the Model Context Protocol." }
 
-import { Note, Tip, Warning } from "@/components/mdx/Callout"
+import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
 import { Card, CardGroup } from "@/components/mdx/Card"
+import { Accordion, AccordionGroup } from "@/components/mdx/Accordion"
 import { PageNav } from "@/components/PageNav"
 import { prevNext } from "@/lib/navigation"
 
-# MCP Server
+# Model Context Protocol (MCP) Server
 
-Chatty runs an [MCP](https://modelcontextprotocol.io) server, so an MCP-compatible AI agent — Claude Desktop, Claude Code, or any other MCP client — can create, customize, and analyze your bots directly, in conversation, instead of you clicking through the dashboard.
+Chatty provides a first-class [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server. With MCP, autonomous AI agents inside **Claude Desktop**, **Cursor IDE**, **Claude Code**, or **Windsurf** can inspect, configure, train, and monitor your entire chatbot fleet using natural conversation.
 
-<Tip>This is the fastest way to try the Developer API: no code to write, just point an MCP client at the server below and approve the connection.</Tip>
+---
 
-## What it can do
+## The 8 Core MCP Tool Suites
 
-<CardGroup cols={2}>
-  <Card title="list_chatbots" icon="📋">List every bot on your account.</Card>
-  <Card title="create_chatbot" icon="✨">Create a new bot — name, welcome message, system prompt, model, color.</Card>
-  <Card title="get_chatbot" icon="🔍">Read a bot's current configuration.</Card>
-  <Card title="update_chatbot" icon="🛠️">Change any of a bot's settings.</Card>
-  <Card title="add_chatbot_knowledge" icon="📚">Add a text snippet to a bot's knowledge base.</Card>
-  <Card title="analyze_chatbot" icon="📊">Pull message, session, and lead counts.</Card>
-</CardGroup>
+Chatty exposes 8 dedicated tool suites through its streamable HTTP MCP interface:
 
-## Connecting a client
+<AccordionGroup>
+  <Accordion title="1. Bot Lifecycle Suite">
+    - `list_chatbots`: List all bots on your account with IDs, names, models, and status.
+    - `create_chatbot`: Spin up a new bot with custom system prompts, welcome messages, and initial settings.
+    - `get_chatbot`: Retrieve detailed parameters for a specific bot UUID.
+    - `update_chatbot`: Modify temperature, LLM model choice (Gemini 2.5 Pro/Flash, GPT-4o), or system guardrails.
+    - `delete_chatbot`: Decommission and archive a bot instance.
+  </Accordion>
 
-The server is at `https://api.chatty.personaliai.com/mcp`. Most MCP clients just need that URL:
+  <Accordion title="2. Knowledge & Vector RAG Suite">
+    - `list_chatbot_knowledge`: Enumerate indexed documents, crawled URLs, and manual text snippets.
+    - `add_chatbot_knowledge`: Ingest new text blocks, documentation URLs, or file URLs into vector embeddings.
+    - `delete_chatbot_knowledge`: Purge outdated knowledge sources from the pgvector database.
+    - `sync_knowledge_source`: Trigger an immediate re-index of connected Google Drive folders or sitemaps.
+  </Accordion>
 
-```json title="Claude Desktop — claude_desktop_config.json"
+  <Accordion title="3. Styling & Theme Engine Suite">
+    - `get_chatbot_theme`: Inspect widget styling, brand colors, typography, and launcher icon settings.
+    - `update_chatbot_theme`: Update primary colors, dark/light theme defaults, launcher positions, or custom CSS rules.
+  </Accordion>
+
+  <Accordion title="4. Visual Flow & Decision Trees Suite">
+    - `get_visual_flow`: Fetch the structured visual decision tree and multi-branch logic for conversational flows.
+    - `update_visual_flow`: Programmatically modify conversation paths, question nodes, and branch logic.
+  </Accordion>
+
+  <Accordion title="5. Campaigns & Proactive Triggers Suite">
+    - `list_campaigns`: View active trigger campaigns, delay timers, and URL matching patterns.
+    - `create_campaign`: Set up proactive popup notifications for high-intent pages (e.g. pricing or cart checkout).
+  </Accordion>
+
+  <Accordion title="6. Voice & Multimodal Settings Suite">
+    - `get_voice_settings`: Inspect speech synthesis preferences, ElevenLabs voice IDs, and audio speed.
+    - `update_voice_settings`: Toggle voice input/transcription options and adjust speech recognition models.
+  </Accordion>
+
+  <Accordion title="7. Live Inbox & Human Takeover Suite">
+    - `list_active_conversations`: Enumerate open visitor threads, unread counts, and escalation flags.
+    - `send_agent_message`: Transmit a human operator reply directly into a live chat session.
+    - `pause_ai_stream`: Set `ai_paused: true` to prevent the bot from responding while an agent handles the user.
+    - `resume_ai_stream`: Restore automated AI responses for the thread.
+  </Accordion>
+
+  <Accordion title="8. Security & Analytics Suite">
+    - `analyze_chatbot`: Aggregate total conversations, message counts, resolved tickets, and CSAT scores.
+    - `audit_security_settings`: Verify domain allowlists, rate limiting configurations, and public token status.
+    - `export_bot_logs`: Download audit trails and conversation transcripts for compliance reviews.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Client Configuration
+
+Chatty's MCP endpoint is hosted at:
+```
+https://api.chatty.personaliai.com/mcp
+```
+
+### 1. Claude Desktop Setup
+
+Edit your Claude Desktop configuration file:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json title="claude_desktop_config.json"
 {
   "mcpServers": {
     "chatty": {
@@ -36,18 +91,44 @@ The server is at `https://api.chatty.personaliai.com/mcp`. Most MCP clients just
 }
 ```
 
-On first use, the client will:
-1. Discover Chatty's OAuth2 authorization server automatically (via `/.well-known/oauth-protected-resource/mcp`).
-2. Register itself as an OAuth2 client (no manual setup — this is [dynamic client registration](/authentication#oauth2-multi-account-access), RFC 7591).
-3. Open your browser to Chatty's consent screen, where you approve access with your existing Chatty login.
-4. Store the resulting token and reuse it for future sessions.
+### 2. Cursor IDE Setup
 
-<Note>You're approving access to your Chatty *account* (every bot you own), not one specific bot — the same OAuth2 scope model the Developer API uses. Review what you're approving on the consent screen before clicking Allow.</Note>
+In your project root, create or edit `.cursor/mcp.json`:
 
-## Building your own MCP client
+```json title=".cursor/mcp.json"
+{
+  "mcpServers": {
+    "chatty": {
+      "url": "https://api.chatty.personaliai.com/mcp",
+      "headers": {
+        "Authorization": "Bearer chatty_sk_your_api_key_here"
+      }
+    }
+  }
+}
+```
 
-The server speaks standard MCP over streamable HTTP with OAuth2 bearer-token auth — any MCP SDK that supports authenticated remote servers will work. See [OAuth2 authentication](/authentication#oauth2-multi-account-access) for the token exchange if your SDK doesn't handle discovery/registration automatically.
+### 3. Claude Code CLI
 
-<Warning>Required scopes for MCP tools mirror the REST API: `read` for the list/get/analyze tools, `write` for create/update/add-knowledge. Request both when registering — most MCP clients ask for `chat read write` by default.</Warning>
+Add the server directly from your terminal:
+
+```bash title="Terminal"
+claude mcp add chatty https://api.chatty.personaliai.com/mcp
+```
+
+---
+
+## Authentication & OAuth2 Handshake
+
+When using Claude Desktop or other dynamic clients, Chatty supports RFC 7591 Dynamic Client Registration and OAuth2 Discovery:
+
+1. The MCP client queries `/.well-known/oauth-protected-resource/mcp`.
+2. The client registers automatically and opens your browser to the Chatty authorization screen.
+3. You approve the connection with your Chatty account credentials.
+4. The client receives a scoped OAuth2 token and begins interacting with your bots.
+
+<Tip>
+When using developer environments like Cursor or headless CI/CD pipelines, you can pass a standard API Key (`chatty_sk_...`) in the `Authorization: Bearer` header to bypass the interactive browser login.
+</Tip>
 
 <PageNav {...prevNext("/guides/mcp")} />

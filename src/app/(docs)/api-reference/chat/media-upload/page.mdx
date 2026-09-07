@@ -1,0 +1,153 @@
+export const metadata = { title: "Multimodal Upload", description: "Upload and attach images, documents, and audio files to conversation threads for visual and multimodal AI processing." }
+
+import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
+import { ParamField, ResponseField } from "@/components/mdx/ParamField"
+import { ApiEndpointBadge } from "@/components/mdx/ApiEndpointBadge"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Multimodal Upload
+
+<ApiEndpointBadge method="POST" path="/api/widget/chat/media" />
+
+Upload images, PDFs, spreadsheets, and audio attachments into an active conversation thread. Uploaded media is securely stored in object storage and made available to Google Gemini's multimodal vision and document analysis pipeline.
+
+---
+
+## Endpoint Details
+
+- **Content-Type**: `multipart/form-data`
+- **Maximum File Size**: 20 MB
+- **Authentication**: `Authorization: Bearer <bot_id>` or pass `bot_id` in form-data.
+
+---
+
+## Request Form Fields
+
+<ParamField body="file" type="file" required>
+  Binary file content. See supported MIME types table below.
+</ParamField>
+
+<ParamField body="session_id" type="string" required>
+  Active conversation session UUID where the attachment belongs.
+</ParamField>
+
+<ParamField body="bot_id" type="string" required>
+  Target bot identifier.
+</ParamField>
+
+---
+
+## Supported MIME Types
+
+| File Type | Extensions | Supported MIME Types |
+| :--- | :--- | :--- |
+| **Images** | `.png`, `.jpg`, `.jpeg`, `.webp`, `.gif` | `image/png`, `image/jpeg`, `image/webp`, `image/gif` |
+| **Documents** | `.pdf`, `.txt`, `.csv` | `application/pdf`, `text/plain`, `text/csv` |
+| **Audio** | `.mp3`, `.wav`, `.ogg`, `.webm`, `.m4a` | `audio/mpeg`, `audio/wav`, `audio/ogg`, `audio/webm`, `audio/x-m4a` |
+
+<Warning>
+Executable formats (`.exe`, `.sh`, `.bat`), script files (`.js`, `.py`, `.php`), and unvetted archive formats (`.zip`, `.tar.gz`) are strictly rejected with `415 Unsupported Media Type` to prevent malicious payloads.
+</Warning>
+
+---
+
+## Anti-DoS Streaming Pipeline
+
+Chatty processes incoming uploads through a non-buffering chunked streaming reader capped at 20MB. If an incoming client stream exceeds 20,971,520 bytes, the server terminates the TCP connection with `413 Payload Too Large` without storing partial data on disk or consuming backend RAM.
+
+---
+
+## Response
+
+<ResponseField name="file_url" type="string">
+  Access-controlled signed URL or public CDN link to the stored media object.
+</ResponseField>
+
+<ResponseField name="file_name" type="string">
+  Sanitized original file name.
+</ResponseField>
+
+<ResponseField name="mime_type" type="string">
+  Detected MIME type of the file.
+</ResponseField>
+
+<ResponseField name="size_bytes" type="integer">
+  Total file size in bytes.
+</ResponseField>
+
+---
+
+## Code Examples
+
+### cURL
+
+```bash title="Terminal"
+curl -X POST https://api.chatty.personaliai.com/api/widget/chat/media \
+  -H "Authorization: Bearer YOUR_BOT_ID" \
+  -F "file=@/path/to/invoice_receipt.png" \
+  -F "session_id=1fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -F "bot_id=YOUR_BOT_ID"
+```
+
+### JavaScript / Browser FormData
+
+```typescript title="upload-media.ts"
+async function uploadChatAttachment(file: File, sessionId: string, botId: string) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("session_id", sessionId);
+  formData.append("bot_id", botId);
+
+  const response = await fetch("https://api.chatty.personaliai.com/api/widget/chat/media", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${botId}`
+    },
+    body: formData
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.detail || "Upload failed");
+  }
+
+  const data = await response.json();
+  console.log("Attached file URL:", data.file_url);
+  return data;
+}
+```
+
+### Python (HTTPX)
+
+```python title="upload_media.py"
+import httpx
+
+def upload_document(bot_id: str, session_id: str, file_path: str):
+    url = "https://api.chatty.personaliai.com/api/widget/chat/media"
+    headers = {"Authorization": f"Bearer {bot_id}"}
+    
+    with open(file_path, "rb") as f:
+        files = {"file": (file_path, f, "application/pdf")}
+        data = {"session_id": session_id, "bot_id": bot_id}
+        
+        response = httpx.post(url, headers=headers, files=files, data=data)
+        response.raise_for_status()
+        return response.json()
+```
+
+**200 OK Response:**
+```json
+{
+  "file_url": "https://storage.chatty.personaliai.com/attachments/1fa85f64/invoice_receipt.png",
+  "file_name": "invoice_receipt.png",
+  "mime_type": "image/png",
+  "size_bytes": 1048576
+}
+```
+
+<Tip>
+Once uploaded, send a follow-up prompt referencing the document in the same `session_id` (e.g. *"Can you extract the total amount and due date from the receipt I just uploaded?"*).
+</Tip>
+
+<PageNav {...prevNext("/api-reference/chat/media-upload")} />

@@ -1,0 +1,201 @@
+export const metadata = { title: "React & Next.js", description: "Official React SDK and script integration guide for Chatty chatbots in React and Next.js applications." }
+
+import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
+import { Card, CardGroup } from "@/components/mdx/Card"
+import { Accordion, AccordionGroup } from "@/components/mdx/Accordion"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# React & Next.js Integration
+
+Chatty provides two simple, zero-bundle-bloat ways to integrate into React and Next.js applications:
+
+1. **The Official npm Package ([`@personaliai/react-widget`](https://www.npmjs.com/package/@personaliai/react-widget))**: A lightweight (< 2 kB) typed React component and hook that loads the assistant via the script method in an isolated Shadow DOM container.
+2. **Direct Script Tag (`widget.js`)**: Add the `<Script>` component directly to your Next.js root layout with zero npm dependencies.
+
+<Note>
+**Building a mobile app?** For **React Native** and Expo applications, use the official native mobile package [`@personaliai/react-native`](https://www.npmjs.com/package/@personaliai/react-native) (see [Mobile SDKs](/guides/mobile-sdks#react-native)), which renders true native `View` and `Text` components without WebViews.
+</Note>
+
+---
+
+## Method 1: Official React Package (`@personaliai/react-widget`)
+
+The official `@personaliai/react-widget` package provides a plug-and-play React component and hook that automates script injection and exposes typed controls.
+
+### 1. Install
+
+```bash
+npm install @personaliai/react-widget
+# or
+yarn add @personaliai/react-widget
+# or
+pnpm add @personaliai/react-widget
+```
+
+### 2. Add `<ChattyWidget />` to Your Layout
+
+```tsx title="app/layout.tsx (Next.js App Router)"
+import { ChattyWidget } from "@personaliai/react-widget";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+
+        {/* Mounts Chatty via script method into isolated Shadow DOM */}
+        <ChattyWidget
+          botId="YOUR_BOT_UUID"
+          position="right"
+          color="#4F46E5"
+        />
+      </body>
+    </html>
+  );
+}
+```
+
+### Component Props
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `botId` | `string` | **Required** | Your bot's unique UUID from the Chatty dashboard. |
+| `position` | `"right" \| "left"` | `"right"` | Corner anchor position for launcher trigger button. |
+| `color` | `string` | Dashboard color | Hex color override for launcher trigger button (e.g. `#4F46E5`). |
+| `style` | `string` | Dashboard style | Design preset override (`"minimal"`, `"playful"`, etc.). |
+| `mobileFullscreen` | `boolean` | `true` | When true, expands full-screen on mobile viewports. |
+| `teaser` | `boolean` | `true` | Whether to display the greeting teaser bubble after delay. |
+| `sound` | `boolean` | `true` | Whether to play sound chimes on incoming AI replies. |
+| `widgetUrl` | `string` | `"https://chatty.personaliai.com/widget.js"` | Custom widget script URL (for self-hosting). |
+
+---
+
+## Method 2: Direct Script Embed (Zero Dependencies)
+
+If you prefer not to install any npm packages, you can use Next.js's built-in `next/script` component:
+
+### Next.js (App Router & Pages Router)
+
+```tsx title="app/layout.tsx (Next.js App Router)"
+import Script from "next/script";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+
+        {/* Chatty Web Widget Script */}
+        <Script
+          src="https://chatty.personaliai.com/widget.js"
+          data-id="YOUR_BOT_ID"
+          strategy="afterInteractive"
+        />
+      </body>
+    </html>
+  );
+}
+```
+
+<Warning>
+Always use the attribute **`data-id`** (not `data-bot-id`). The widget loader specifically queries for `data-id` to initialize your bot.
+</Warning>
+
+### Plain React (Vite / CRA / Remix)
+
+Paste the script tag into your `index.html` right before `</body>`:
+
+```html title="index.html"
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Chatty Widget -->
+    <script
+      src="https://chatty.personaliai.com/widget.js"
+      data-id="YOUR_BOT_ID"
+      defer
+    ></script>
+  </body>
+</html>
+```
+
+---
+
+## Programmatic Control with `useChatty()` Hook
+
+Whether you install `@personaliai/react-widget` or embed the script directly, you can control the chat panel programmatically via the `useChatty()` hook:
+
+```tsx title="components/ContactButton.tsx"
+"use client";
+
+import { useChatty } from "@personaliai/react-widget";
+
+export function ContactButton() {
+  const { open, close, toggle } = useChatty();
+
+  return (
+    <button
+      onClick={open}
+      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium shadow-sm transition-colors"
+    >
+      💬 Chat with Support
+    </button>
+  );
+}
+```
+
+If you're using the direct script tag without the npm package, you can define `useChatty` yourself:
+
+```tsx title="hooks/useChatty.ts"
+"use client";
+
+export function useChatty() {
+  const open = () => {
+    if (typeof window !== "undefined" && (window as any).Chatty) {
+      (window as any).Chatty.open();
+    }
+  };
+
+  const close = () => {
+    if (typeof window !== "undefined" && (window as any).Chatty) {
+      (window as any).Chatty.close();
+    }
+  };
+
+  const toggle = () => {
+    if (typeof window !== "undefined" && (window as any).Chatty) {
+      (window as any).Chatty.toggle();
+    }
+  };
+
+  return { open, close, toggle };
+}
+```
+
+---
+
+## Why the Script Method?
+
+| Advantage | Benefit |
+| :--- | :--- |
+| **Zero CSS Conflicts** | Mounts inside an isolated **Shadow DOM** root, completely preventing host styles from bleeding in or widget styles from leaking out. |
+| **Ultra-Lightweight** | Bundle size in your application is < 2 kB (or 0 kB with direct script tag). |
+| **Instant Server Sync** | When you edit your bot's colors, welcome text, or system prompt in the dashboard, changes show up immediately for your users without needing a code redeployment. |
+| **100% Crisp Vector Sharpness** | Uses native SVG and DOM elements rather than an iframe bitmap. |
+
+<PageNav {...prevNext("/guides/react-sdk")} />

@@ -1,0 +1,130 @@
+export const metadata = { title: "Self-Hosting & Deploy", description: "Enterprise deployment guide for running Chatty backend, frontend, and database on Google Cloud Run, AWS, or Docker." }
+
+import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
+import { Card, CardGroup } from "@/components/mdx/Card"
+import { Accordion, AccordionGroup } from "@/components/mdx/Accordion"
+import { PageNav } from "@/components/PageNav"
+import { prevNext } from "@/lib/navigation"
+
+# Self-Hosting & Production Deployment
+
+Chatty is architected for zero-downtime containerized deployments. While we offer a fully managed cloud service at `api.chatty.personaliai.com`, enterprise teams can self-host the complete backend stack inside their own Google Cloud Platform (GCP), AWS, or private Kubernetes clusters.
+
+---
+
+## Minimum System Requirements
+
+- **Runtime**: Python 3.11+, Node.js 20+
+- **Database**: PostgreSQL 15+ with the `pgvector` extension enabled
+- **Cache**: Redis 7+ or Upstash Redis
+- **Compute Sizing**: 2 vCPU, 2–4 GB RAM per container instance
+
+---
+
+## Google Cloud Run Deployment
+
+Google Cloud Run is our recommended serverless container platform because it scales seamlessly down to zero (or warm minimums) while supporting long-lived HTTP streaming connections.
+
+### 1. Build and Push Container
+
+```bash title="Build & Push"
+# Set project environment
+export PROJECT_ID="your-gcp-project"
+export REGION="us-central1"
+export IMAGE="gcr.io/${PROJECT_ID}/chatty-backend:latest"
+
+# Build container
+docker build -t ${IMAGE} -f Dockerfile .
+docker push ${IMAGE}
+```
+
+### 2. Deploy Service with Production Flags
+
+```bash title="Deploy Command"
+gcloud run deploy chatty-backend \
+  --image ${IMAGE} \
+  --platform managed \
+  --region ${REGION} \
+  --allow-unauthenticated \
+  --port 8000 \
+  --cpu 2 \
+  --memory 2Gi \
+  --concurrency 50 \
+  --min-instances 1 \
+  --no-cpu-throttling \
+  --timeout 300s \
+  --set-env-vars="ENV=production" \
+  --set-secrets="DATABASE_URL=chatty_db_url:latest,UPSTASH_REDIS_REST_TOKEN=chatty_redis_token:latest"
+```
+
+### Production Flag Rationale
+
+<AccordionGroup>
+  <Accordion title="--concurrency 50">
+    Configures each container instance to handle up to 50 concurrent SSE streaming requests. FastAPI's async event loop manages this efficiently without thread starvation.
+  </Accordion>
+  <Accordion title="--min-instances 1">
+    Guarantees at least one container is always warm. Eliminates cold-start penalties for incoming customer chat inquiries.
+  </Accordion>
+  <Accordion title="--no-cpu-throttling">
+    **Critical for SSE and Background Tasks.** By default, Cloud Run throttles CPU outside of active HTTP request lifecycles. Disabling CPU throttling ensures background database persistence and webhook dispatches finish cleanly after the stream ends.
+  </Accordion>
+  <Accordion title="--timeout 300s">
+    Extends the request timeout to 5 minutes, ensuring deep RAG document crawls and complex multi-step reasoning tasks are not abruptly severed.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Complete Environment Variables Reference
+
+| Variable | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `DATABASE_URL` | String | **Yes** | PostgreSQL connection URI. Use port 6543 (transaction mode) if using Supabase pooler. |
+| `GEMINI_API_KEY` | String | **Yes** | Google Gemini API key for default inference and embeddings. |
+| `UPSTASH_REDIS_REST_URL` | String | **Yes** | Upstash Redis REST endpoint for distributed rate limiting. |
+| `UPSTASH_REDIS_REST_TOKEN`| String | **Yes** | Upstash Redis authorization token. |
+| `SUPABASE_URL` | String | **Yes** | Supabase project URL for object storage and user auth. |
+| `SUPABASE_SERVICE_ROLE_KEY`| String | **Yes** | Supabase admin service key for backend operations. |
+| `ENCRYPTION_KEY` | String | **Yes** | 32-byte hex string used for AES-256-GCM BYOK credential encryption. |
+| `ALLOW_ORIGINS` | String | No | Comma-separated CORS origins (defaults to `*`). |
+| `OPENAI_API_KEY` | String | No | Optional OpenAI fallback key for models like GPT-4o. |
+| `ANTHROPIC_API_KEY` | String | No | Optional Anthropic key for Claude 3.5 Sonnet. |
+| `SLACK_SIGNING_SECRET` | String | No | Slack integration HMAC verification secret. |
+| `WHATSAPP_APP_SECRET` | String | No | Meta WhatsApp integration webhook verification secret. |
+
+---
+
+## Database Connection Pooling Configuration
+
+When running under high concurrency, ensure your database engine settings in Python utilize pre-ping and worker limits:
+
+```python title="database.py"
+from sqlalchemy.ext.asyncio import create_async_engine
+
+engine = create_async_engine(
+    DATABASE_URL,
+    pool_size=20,          # Base pool of active persistent connections
+    max_overflow=44,       # Up to 64 total concurrent connections per container
+    pool_timeout=30.0,     # Maximum wait time for an available connection
+    pool_recycle=1800,     # Recycle connections every 30 minutes
+    pool_pre_ping=True,    # Test connection liveness before query execution
+    echo=False
+)
+```
+
+---
+
+## Health Checks & Readiness Probes
+
+Chatty exposes two monitoring endpoints:
+
+- `GET /health`: Liveness probe. Returns `{"status": "ok"}` when the ASGI server is accepting connections.
+- `GET /ready`: Readiness probe. Validates database pool query liveness and Upstash Redis connectivity before traffic is routed.
+
+```bash
+curl http://localhost:8000/ready
+# {"status": "ready", "db": "connected", "redis": "connected"}
+```
+
+<PageNav {...prevNext("/guides/self-hosting")} />
