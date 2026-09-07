@@ -114,8 +114,35 @@ Once booked:
 - **Meeting Reminders**: Send automated WhatsApp or email reminders 24 hours and 1 hour before the scheduled start.
 - **Self-Serve Rescheduling**: Confirmation emails contain a secure rescheduling token allowing attendees to pick a new slot or cancel with one click, without needing to contact support.
 
+---
+
+## Anti-Spam & Abuse Protection
+
+Automated calendar booking widgets can be vulnerable to automated spam bots, fake email submissions, and malicious calendar flooding. Chatty provides **4 concrete anti-abuse defenses** located in the Chatty Dashboard under **Bot Settings &rarr; Calendar Scheduling &rarr; Abuse & Spam Protection** (all optional and disabled by default):
+
+<CardGroup cols={2}>
+  <Card title="Email OTP Verification" icon="🔒">
+    <b>Strongest Defense:</b> Dispatches a secure 6-digit one-time passcode to the visitor's email inbox. The AI assistant requires the visitor to enter the correct code in the chat before finalizing the calendar reservation.
+  </Card>
+  <Card title="Block Disposable Emails" icon="🛡️">
+    Instantly detects and rejects burner/throwaway email providers (e.g. `@mailinator.com`, `@tempmail.com`, `@guerrillamail.com`, `@10minutemail.com`) to guarantee authentic contact channels.
+  </Card>
+  <Card title="Limit 1 Active Booking" icon="⏱️">
+    Restricts each attendee email address to at most 1 active/upcoming meeting concurrently. Prevents single visitors from monopolizing your team's calendar availability.
+  </Card>
+  <Card title="Require Business Email" icon="🏢">
+    Filters out free consumer inboxes (`@gmail.com`, `@yahoo.com`, `@hotmail.com`, `@outlook.com`, `@icloud.com`) and mandates corporate/work domains (ideal for B2B qualification).
+  </Card>
+</CardGroup>
+
+### Recommended Defense Profiles
+
+- **B2B Sales & Enterprise Demos**: Turn on **Require Business Email** and **Email OTP Verification**. Guarantees that every booked demo is tied to a real, verified corporate buyer.
+- **B2C Consultations & General Support**: Turn on **Block Disposable Emails** and **Limit 1 Active Booking Per Email**. Welcomes standard consumer email accounts while stopping throwaway abuse and duplicate slot hoarding.
+- **Maximum Anti-Bot Defense**: Turn on **Email OTP Verification**. Because automated scripts cannot read the recipient's private email inbox, bot-generated fake meetings are stopped completely.
+
 <Tip>
-Configure your calendar integration in the Chatty Dashboard under **Bot Settings &rarr; Integrations &rarr; Calendar**.
+Configure your calendar integration and spam protection in the Chatty Dashboard under **Bot Settings &rarr; Integrations &rarr; Calendar Scheduling**.
 </Tip>
 
 <PageNav {...prevNext("/guides/calendar-scheduling")} />
