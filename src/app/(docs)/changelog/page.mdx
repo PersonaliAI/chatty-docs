@@ -10,6 +10,20 @@ Release notes for the Chatty platform and API.
 
 ---
 
+## October 2026
+
+### 2026-10-30 — Multi-Gateway In-Chat Payments & Product Catalog Sync
+
+- **Native Gateway Integrations**: Connect **Stripe**, **Lemon Squeezy**, and **Polar.sh** directly under Dashboard → Integrations with one-click credential validation and test-mode toggles.
+- **Automated Catalog & Pricing Plan Synchronization**: Chatty automatically queries connected gateways to import all active products, billing tiers, and recurring subscriptions into the platform.
+- **In-Chat Payment Cards**: Interactive, responsive checkout cards (`[CHECKOUT_LINK:{...}]`) with clear line-item names, formatted amounts, trust seals, and direct 1-click checkout buttons.
+- **Live Inbox Payment Generator**: Dual-mode payment modal in the Agent Inbox allowing human agents to search pre-synced products or generate custom one-time amounts on the fly.
+- **AI Agent Payment Restrictions & Policy Control**: Dedicated policy toggle (`ai_payment_allowed`) and transaction ceilings (`ai_max_amount_cents`) to prevent autonomous prompt injection exploits and mandate human takeover for financial actions.
+- **Enterprise Fintech Security**: Fernet AES-256 secret encryption at rest, dashboard key masking, HMAC webhook signature verification, and zero raw cardholder footprint (PCI-DSS Level 1 compliant).
+- See the complete [Payment Gateways & Checkouts Guide](/guides/payment-gateways) for setup details.
+
+---
+
 ## August 2026
 
 ### 2026-08-31 — Per-member dashboard permissions

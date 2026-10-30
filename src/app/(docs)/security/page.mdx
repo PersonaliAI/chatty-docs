@@ -99,6 +99,18 @@ AI models and vector databases are computationally intensive. Chatty deploys mul
 
 ---
 
+## Payment Security & Zero Cardholder Footprint (PCI-DSS)
+
+Chatty provides in-chat payment checkout cards powered by Stripe, Lemon Squeezy, and Polar.sh with an uncompromising fintech security architecture:
+
+- **Zero Cardholder Data (PAN/CVV) Storage**: Chatty servers never capture, transmit, or store primary account numbers, cardholder names, expiration dates, or CVVs. All transactions execute on gateway-hosted checkout sessions certified to **PCI-DSS Level 1**.
+- **Fernet AES-256 Symmetric Encryption**: All sensitive payment gateway credentials (Stripe Secret Keys, Lemon Squeezy API Keys, Polar Access Tokens, and Webhook Secrets) are encrypted at rest using AES-256 in CBC mode with HMAC-SHA256 authenticated encryption before persisting to the database.
+- **Masked Previews**: Dashboard integration screens only expose truncated key identifiers (sk_live_••••••4821). Cleartext keys are permanently write-only.
+- **AI Agent Financial Policy Boundaries**: Bots cannot autonomously trigger unauthorized checkouts or generate discounts unless explicitly permitted via the i_payment_allowed policy and capped by i_max_amount_cents.
+- **HMAC Webhook Signature Verification**: Inbound payment webhook callbacks are cryptographically verified using gateway secret signatures (Stripe-Signature, Lemon Squeezy HMAC, Polar HMAC) to defend against replay and forgery attacks.
+
+---
+
 ## Compliance, Privacy & GDPR
 
 Chatty empowers enterprise teams to meet global regulatory standards including GDPR, CCPA, and HIPAA privacy rules:

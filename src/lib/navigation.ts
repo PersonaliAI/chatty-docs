@@ -53,6 +53,7 @@ export const navigation: NavGroup[] = [
       { title: "WhatsApp Channel",     href: "/guides/whatsapp" },
       { title: "MCP Server",           href: "/guides/mcp" },
       { title: "AI Coding Plugins",    href: "/guides/ai-coding-plugins" },
+      { title: "Payment Gateways & Checkouts", href: "/guides/payment-gateways" },
       { title: "Per-Bot Integrations", href: "/guides/per-bot-integrations" },
     ],
   },
