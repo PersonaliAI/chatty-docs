@@ -20,6 +20,10 @@ Release notes for the Chatty platform and API.
 - **Live Inbox Payment Generator**: Dual-mode payment modal in the Agent Inbox allowing human agents to search pre-synced products or generate custom one-time amounts on the fly.
 - **AI Agent Payment Restrictions & Policy Control**: Dedicated policy toggle (`ai_payment_allowed`) and transaction ceilings (`ai_max_amount_cents`) to prevent autonomous prompt injection exploits and mandate human takeover for financial actions.
 - **Enterprise Fintech Security**: Fernet AES-256 secret encryption at rest, dashboard key masking, HMAC webhook signature verification, and zero raw cardholder footprint (PCI-DSS Level 1 compliant).
+- **PayPal added** (Orders v2, sandbox and live) for custom-amount checkouts.
+- **Lemon Squeezy**: custom amounts now attach to an existing product variant (required by its API); the catalog lists each variant with its real price.
+- The Inbox checkout picker only offers gateways you have connected.
+- Security hardening: validated gateway identifiers in outbound URLs, sanitized payment logs, and a linear-time email check in the widget.
 - See the complete [Payment Gateways & Checkouts Guide](/guides/payment-gateways) for setup details.
 
 ---

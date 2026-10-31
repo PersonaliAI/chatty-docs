@@ -1,6 +1,6 @@
 export const metadata = {
   title: "Payment Gateways & In-Chat Checkouts",
-  description: "Connect Stripe, Lemon Squeezy, and Polar.sh to sync product catalogs and dispatch secure in-chat checkout cards with AI safety policies.",
+  description: "Connect Stripe, PayPal, Lemon Squeezy, and Polar.sh to sync product catalogs and dispatch secure in-chat checkout cards with AI safety policies.",
 }
 
 import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
@@ -13,15 +13,18 @@ import { prevNext } from "@/lib/navigation"
 
 Chatty allows your team and AI agents to close deals, collect consultation deposits, and sell products directly within chat threads. Customers never have to leave the conversation or click obscure external links—they receive an interactive, PCI-compliant checkout card right in the message flow.
 
-Whether you bill via **Stripe**, use **Lemon Squeezy** as a Merchant of Record for global digital tax compliance, or run a developer SaaS on **Polar.sh**, Chatty automatically syncs your existing product pricing plans and provides one-click dispatch from both the Live Agent Inbox and automated workflows.
+Whether you bill via **Stripe**, accept **PayPal**, use **Lemon Squeezy** as a Merchant of Record for global digital tax compliance, or run a developer SaaS on **Polar.sh**, Chatty automatically syncs your existing product pricing plans and provides one-click dispatch from both the Live Agent Inbox and automated workflows.
 
 ---
 
 ## Supported Gateways
 
-<CardGroup cols={3}>
+<CardGroup cols={2}>
   <Card title="Stripe" icon="💳">
     Direct card processing, Apple Pay, Google Pay, SEPA, and 40+ local payment methods via Stripe Hosted Checkout.
+  </Card>
+  <Card title="PayPal" icon="🅿️">
+    PayPal balance, cards, and Pay Later through a hosted PayPal approval page (Orders v2). Custom amounts only; PayPal has no one-time price catalog.
   </Card>
   <Card title="Lemon Squeezy" icon="🍋">
     Merchant of Record (MoR) platform handling global sales tax, VAT, invoicing, and cross-border digital compliance automatically.
@@ -68,6 +71,7 @@ Chatty connects directly to your payment gateway's API and automatically imports
 - **Stripe**: Queries active prices and expanded product objects (`/v1/prices?expand[]=data.product`).
 - **Lemon Squeezy**: Fetches store products, descriptions, and variant price configurations (`/v1/products?include=variants`).
 - **Polar.sh**: Queries active products, recurring intervals, and custom pricing schemes (`/v1/products`).
+- **PayPal**: No catalog sync. PayPal does not store prices for one-time products, so use Custom One-Time Amount.
 
 Agents can search the catalog in real-time, inspect formatted prices, and click once to generate a branded checkout link tied directly to that plan.
 
@@ -77,6 +81,10 @@ For ad-hoc custom scopes, emergency retainers, or tailored quotes:
 - Specify the exact amount (minimum $0.50).
 - Select any supported billing currency (USD, EUR, GBP, CAD, AUD, etc.).
 - Chatty instantly spins up a secure one-off payment session.
+
+<Warning>
+**Lemon Squeezy limitation:** Lemon Squeezy cannot create products from code. A custom amount overrides the price of an *existing* product variant, so Chatty attaches it to the variant you pick (or your first synced one). Keep at least one published product in your store, otherwise custom-amount checkouts return an error.
+</Warning>
 
 ---
 
@@ -148,13 +156,18 @@ Never store live payment secret keys in unencrypted environment files or client-
 3. Enter your **API Key** and your numeric **Store ID**.
 4. Click **Connect Lemon Squeezy**. Chatty syncs all products and active variants from your store.
 
-### 3. Connecting Polar.sh
+### 3. Connecting PayPal
+1. Create a **REST app** at [developer.paypal.com](https://developer.paypal.com/dashboard/applications).
+2. In **Integrations**, open **PayPal** and enter the app's **Client ID** and **Client Secret**.
+3. Keep **Test Mode** on for sandbox credentials and turn it off for live credentials. Mismatched credentials fail verification.
+
+### 4. Connecting Polar.sh
 1. In the **Integrations** tab, locate **Polar.sh**.
 2. Create an **Organization Access Token** in your [Polar Developer Settings](https://polar.sh/settings).
 3. Enter your token and **Organization ID**.
 4. Click **Connect Polar.sh** to import your digital SaaS tiers and subscriptions.
 
-### 4. Sandbox & Test Mode
+### 5. Sandbox & Test Mode
 Every payment gateway supports a **Test Mode** toggle. When enabled:
 - Stripe routes transactions through its test environment (`sk_test_...`).
 - Lemon Squeezy and Polar use sandbox test orders.
