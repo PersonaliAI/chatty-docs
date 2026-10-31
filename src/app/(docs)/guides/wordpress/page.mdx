@@ -41,36 +41,23 @@ When you connect or click **Sync Content Now**:
 
 ---
 
-## Part 2: Real-Time Content Auto-Sync + Widget Embed Snippet
+## Part 2: Optional Real-Time Content Auto-Sync (`save_post` Webhook)
 
 What happens when you publish a new blog post, update your pricing page, or trash an outdated article on WordPress?
 
-Inside **Dashboard → Integrations → WordPress Content & KB**, Chatty generates a ready-to-paste **PHP Snippet** pre-configured with your `bot_id`, `webhook_url`, and HMAC-SHA256 `webhook_secret`.
+Once your WordPress site is connected inside **Dashboard → Integrations → WordPress Content & KB**, Chatty provides an optional **Real-Time Content Webhook (`save_post`)** pre-configured with your `webhook_url` and HMAC-SHA256 `webhook_secret`.
 
-### How to Add the All-in-One Snippet in WordPress:
+### How to Enable Real-Time Content Sync in WordPress:
 
-1. In your WordPress Admin, install the free **WPCode** (Insert Headers and Footers + Custom Code Snippets) plugin, or open **Appearance → Theme File Editor → `functions.php`**.
-2. Copy the **PHP Snippet** from your Chatty WordPress Integration card:
+1. In your WordPress Admin, install the free **WPCode** (Code Snippets) plugin, or open **Appearance → Theme File Editor → `functions.php`**.
+2. Copy the **`save_post` Hook** from your connected Chatty WordPress Integration card:
 
 ```php
 <?php
 /**
- * Chatty AI — WordPress Widget Embed + Automatic Knowledge Base Sync
+ * Chatty AI — Real-Time WordPress Knowledge Base Auto-Sync Hook
+ * Automatically updates your Chatty Knowledge Base whenever a Page or Post is published or edited.
  */
-
-// 1. Embed the Chatty AI Assistant Widget on your WordPress site
-add_action('wp_footer', function () {
-    if (is_admin()) return;
-    ?>
-    <script
-      src="https://chatty.personaliai.com/widget.js"
-      data-bot-id="YOUR_BOT_ID"
-      defer
-    ></script>
-    <?php
-});
-
-// 2. Automatically sync published Pages & Posts to Chatty Knowledge Base in real time
 add_action('save_post', function ($post_id, $post, $update) {
     if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) return;
     if (!in_array($post->post_type, array('post', 'page'), true)) return;
@@ -103,14 +90,13 @@ add_action('save_post', function ($post_id, $post, $update) {
 ```
 
 3. Save and activate the snippet:
-   - **Floating Chat Widget**: Immediately appears across your public WordPress pages.
    - **Instant Knowledge Base Sync**: Publishing or editing any Page or Post fires a non-blocking, HMAC-signed webhook to `/api/integrations/wordpress/webhook/{bot_id}` that updates the trained source in your Knowledge Base within seconds. Unpublishing or moving a post to Trash automatically removes it from your AI's Knowledge Base.
 
 ---
 
-## Part 3: Official WordPress Plugin & Shortcodes
+## Part 3: Embedding the Chat Widget (Official WordPress Plugin)
 
-Prefer a no-code plugin UI for widget placement? You can also install the **PersonaliAI Customer Support Chatbot** plugin:
+To embed the floating Chatty widget or inline chat window on your WordPress site, use the **Official WordPress Plugin** found under **Dashboard → Integrations → Embed Chatbot on Websites → WordPress**:
 
 <CardGroup cols={2}>
   <Card title="Method A: Plugin Directory" icon="🔌">
