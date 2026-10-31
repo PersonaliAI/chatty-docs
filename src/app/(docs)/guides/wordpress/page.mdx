@@ -1,4 +1,7 @@
-export const metadata = { title: "WordPress Plugin", description: "Install and configure the official PersonaliAI Customer Support Chatbot plugin for WordPress." }
+export const metadata = {
+  title: "WordPress Integration & Knowledge Base Sync",
+  description: "Train your Chatty AI agent on WordPress Pages, Blog Posts, and Articles with 1-click Knowledge Base sync, real-time webhooks, and widget embedding."
+}
 
 import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
 import { Card, CardGroup } from "@/components/mdx/Card"
@@ -6,94 +9,124 @@ import { ParamField } from "@/components/mdx/ParamField"
 import { PageNav } from "@/components/PageNav"
 import { prevNext } from "@/lib/navigation"
 
-# WordPress Integration
+# WordPress Integration & Knowledge Base Training
 
-The official **PersonaliAI Customer Support Chatbot** WordPress plugin connects your Chatty AI agent to any WordPress site in seconds. It injects the responsive chat widget, synchronizes logged-in user profiles, and provides flexible shortcodes for embedding bots inside Elementor, Gutenberg, or WooCommerce pages.
+Chatty provides a complete, dual-purpose **WordPress Integration** under **Dashboard → Integrations → WordPress Content & KB**:
+1. **1-Click Knowledge Base Training**: Automatically fetch and train your AI agent on all published WordPress **Pages**, **Blog Posts**, and **Articles** via the WordPress REST API (`/wp-json/wp/v2`) or Sitemap XML fallback—with clickable source URL citations in every answer.
+2. **Real-Time Auto-Sync & Widget Embed**: Embed the responsive Chatty widget on your WordPress site and automatically push real-time content updates (`save_post`) to your Knowledge Base whenever you publish or edit a page or post.
 
 ---
 
-## Installation
+## Part 1: Training Your AI on WordPress Content
+
+You do **not** need to copy-paste WordPress pages or blog posts one by one into your Knowledge Base.
+
+### Step 1: Connect Your WordPress Site
+
+1. Open **Chatty Dashboard → Integrations → WordPress Content & KB**.
+2. Enter your **WordPress Website URL** (e.g., `https://yourwebsite.com`).
+3. Choose which content types to train:
+   - ✅ **Train AI on Published Pages** (`/wp-json/wp/v2/pages` — About, Pricing, Services, FAQ, Policies)
+   - ✅ **Train AI on Blog Posts & Articles** (`/wp-json/wp/v2/posts` — Guides, News, Documentation, Tutorials)
+4. *(Optional)* If your WordPress REST API is restricted behind authentication, click **+ Optional: Add WP Application Password** and enter your WordPress Username and an Application Password generated under **WordPress Admin → Users → Profile → Application Passwords**.
+5. Click **Connect & Train Knowledge Base**.
+
+### Step 2: How Content Is Indexed in Your Knowledge Base
+
+When you connect or click **Sync Content Now**:
+- Chatty paginates through your published WordPress Pages and Posts via `/wp-json/wp/v2/pages` and `/wp-json/wp/v2/posts` (or falls back to `/wp-sitemap.xml` if a security plugin disables REST routes).
+- Gutenberg blocks, shortcodes, scripts, and HTML tags are stripped into clean, structured Markdown text containing the page title, canonical URL, last-modified timestamp, summary excerpt, and full article body.
+- Each page or post is upserted directly into your bot's **Knowledge Base** (`chatty_sources` with `type="url"` and `status="trained"`).
+- You can inspect, search, or manage every imported WordPress page at any time inside **Dashboard → Knowledge Base**.
+
+---
+
+## Part 2: Real-Time Content Auto-Sync + Widget Embed Snippet
+
+What happens when you publish a new blog post, update your pricing page, or trash an outdated article on WordPress?
+
+Inside **Dashboard → Integrations → WordPress Content & KB**, Chatty generates a ready-to-paste **PHP Snippet** pre-configured with your `bot_id`, `webhook_url`, and HMAC-SHA256 `webhook_secret`.
+
+### How to Add the All-in-One Snippet in WordPress:
+
+1. In your WordPress Admin, install the free **WPCode** (Insert Headers and Footers + Custom Code Snippets) plugin, or open **Appearance → Theme File Editor → `functions.php`**.
+2. Copy the **PHP Snippet** from your Chatty WordPress Integration card:
+
+```php
+<?php
+/**
+ * Chatty AI — WordPress Widget Embed + Automatic Knowledge Base Sync
+ */
+
+// 1. Embed the Chatty AI Assistant Widget on your WordPress site
+add_action('wp_footer', function () {
+    if (is_admin()) return;
+    ?>
+    <script
+      src="https://chatty.personaliai.com/widget.js"
+      data-bot-id="YOUR_BOT_ID"
+      defer
+    ></script>
+    <?php
+});
+
+// 2. Automatically sync published Pages & Posts to Chatty Knowledge Base in real time
+add_action('save_post', function ($post_id, $post, $update) {
+    if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) return;
+    if (!in_array($post->post_type, array('post', 'page'), true)) return;
+
+    $payload = wp_json_encode(array(
+        'action'      => $post->post_status === 'publish' ? 'updated' : 'deleted',
+        'id'          => $post_id,
+        'post_type'   => $post->post_type,
+        'post_status' => $post->post_status,
+        'title'       => get_the_title($post_id),
+        'link'        => get_permalink($post_id),
+        'content'     => apply_filters('the_content', $post->post_content),
+        'excerpt'     => get_the_excerpt($post_id),
+        'modified'    => $post->post_modified_gmt,
+    ));
+
+    $signature = hash_hmac('sha256', $payload, 'YOUR_WEBHOOK_SECRET');
+
+    wp_remote_post('https://api.chatty.personaliai.com/api/integrations/wordpress/webhook/YOUR_BOT_ID', array(
+        'method'   => 'POST',
+        'timeout'  => 5,
+        'blocking' => false,
+        'headers'  => array(
+            'Content-Type'          => 'application/json',
+            'X-WP-Chatty-Signature' => $signature,
+        ),
+        'body'     => $payload,
+    ));
+}, 10, 3);
+```
+
+3. Save and activate the snippet:
+   - **Floating Chat Widget**: Immediately appears across your public WordPress pages.
+   - **Instant Knowledge Base Sync**: Publishing or editing any Page or Post fires a non-blocking, HMAC-signed webhook to `/api/integrations/wordpress/webhook/{bot_id}` that updates the trained source in your Knowledge Base within seconds. Unpublishing or moving a post to Trash automatically removes it from your AI's Knowledge Base.
+
+---
+
+## Part 3: Official WordPress Plugin & Shortcodes
+
+Prefer a no-code plugin UI for widget placement? You can also install the **PersonaliAI Customer Support Chatbot** plugin:
 
 <CardGroup cols={2}>
-  <Card title="Method A: Plugin Directory (Recommended)" icon="🔌">
+  <Card title="Method A: Plugin Directory" icon="🔌">
     1. Navigate to <b>Plugins &rarr; Add New Plugin</b> in your WP Admin.<br/>
     2. Search for <code>PersonaliAI Customer Support Chatbot</code>.<br/>
     3. Click <b>Install Now</b>, then <b>Activate</b>.<br/>
     <a href="https://wordpress.org/plugins/personaliai-customer-support-chatbot" target="_blank" rel="noopener noreferrer" className="text-xs text-orange-500 font-semibold underline mt-2 block">View on WordPress.org &rarr;</a>
   </Card>
-  <Card title="Method B: Manual ZIP Upload" icon="📦">
-    1. Download the latest <code>.zip</code> package from the <a href="https://wordpress.org/plugins/personaliai-customer-support-chatbot" target="_blank" rel="noopener noreferrer" className="underline">WordPress.org plugin page</a> or your Chatty dashboard.<br/>
-    2. Go to <b>Plugins &rarr; Add New &rarr; Upload Plugin</b>.<br/>
-    3. Choose the ZIP file, upload, and click <b>Activate Plugin</b>.
+  <Card title="Method B: Shortcode Embeds" icon="🧩">
+    Embed an inline chat window inside any Gutenberg block, Elementor section, or Divi layout:<br/>
+    <code>[personaliai_chat inline="true" height="650px" width="100%"]</code>
   </Card>
 </CardGroup>
 
-<Info>
-  <b>WordPress.org Directory Indexing Note</b>: Following plugin approval, search indexing across global WordPress.org clusters can take up to 72 hours. You can always access and download the plugin directly via the public page at [wordpress.org/plugins/personaliai-customer-support-chatbot](https://wordpress.org/plugins/personaliai-customer-support-chatbot).
-</Info>
-
----
-
-## Configuration
-
-Once activated, open **Settings &rarr; PersonaliAI Chatbot** in your WordPress dashboard:
-
-<WordPressSettingsMockup />
-
-### Settings Fields
-
-<ParamField body="Bot ID" type="string" required>
-  Your unique Bot UUID found in your Chatty Bot Dashboard under <b>Settings &rarr; General</b>.
-</ParamField>
-
-<ParamField body="API Host" type="string" default="https://api.chatty.personaliai.com">
-  The backend API server. Only change this if you are using an enterprise on-premise proxy or self-hosted backend.
-</ParamField>
-
-<ParamField body="Enable Floating Chat" type="boolean" default="true">
-  Automatically mounts the floating launcher icon in the bottom corner across your public site.
-</ParamField>
-
-<ParamField body="Exclude Paths" type="string">
-  Comma-separated list of path globs where the floating widget should be disabled (e.g. `/cart/*`, `/checkout/*`, `/my-account/orders/*`).
-</ParamField>
-
-<ParamField body="Sync Logged-In User" type="boolean" default="true">
-  When checked, the plugin passes `wp_get_current_user()` data (display name, email address, and user ID) to the chatbot session, eliminating the need to re-ask the visitor for their contact info.
-</ParamField>
-
----
-
-## Shortcodes
-
-Use shortcodes to display the chat widget inline on specific pages, knowledge hubs, or inside page builders (Elementor, Beaver Builder, Divi, Gutenberg):
-
-### 1. Inline Support Desk
-Renders a full container chat widget inside your content area:
-
-```html
-[personaliai_chat inline="true" height="650px" width="100%"]
-```
-
-### 2. Custom Bot on Specific Landing Pages
-Override the global Bot ID for dedicated campaign pages:
-
-```html
-[personaliai_chat bot_id="custom-sales-bot-uuid" position="bottom-left"]
-```
-
----
-
-## WooCommerce Compatibility
-
-The plugin automatically detects active WooCommerce installations. When a customer chats while viewing a product:
-
-1. **Product Context Injection**: The current product name, SKU, price, and stock status are supplied to the bot's temporary session context.
-2. **Order Lookup Assistant**: If the customer asks *"Where is my order?"*, the bot can utilize the logged-in customer's session to check shipping tracking status.
-3. **Cart Abandonment Prevention**: Set proactive trigger messages when a shopper lingers on the checkout page for more than 45 seconds.
-
 <Tip>
-Remember to whitelist your WordPress domain in the Chatty dashboard under **Bot Settings &rarr; Security &rarr; Allowed Domains** (e.g. `yourstore.com` and `www.yourstore.com`).
+If your WordPress site also runs **WooCommerce** for e-commerce products and order tracking, connect both **WordPress Content & KB** (for your informational pages, policies, and blog articles) and **WooCommerce Store** (for live product cards, variations, and order lookups).
 </Tip>
 
 <PageNav {...prevNext("/guides/wordpress")} />

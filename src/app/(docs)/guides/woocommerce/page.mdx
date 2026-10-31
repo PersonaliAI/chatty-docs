@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "WooCommerce Integration",
-  description: "Connect your WooCommerce store to Chatty for live product search, instant order tracking, real-time catalog sync, and interactive shopping in chat."
+  title: "WooCommerce Store Integration",
+  description: "Connect an existing or new WooCommerce store to Chatty for 1-click bulk product catalog sync, automatic webhooks, and live order tracking."
 }
 
 import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
@@ -9,203 +9,120 @@ import { CodeGroup } from "@/components/mdx/CodeGroup"
 import { PageNav } from "@/components/PageNav"
 import { prevNext } from "@/lib/navigation"
 
-# WooCommerce Integration
+# WooCommerce Store Integration
 
-Transform your Chatty AI bot into a high-converting 24/7 sales assistant for your WooCommerce store. The native WooCommerce integration allows Chatty to answer customer questions with real-time catalog data, display interactive product cards, check live inventory, and track customer orders securely inside the chat window.
+Transform your Chatty AI assistant into a 24/7 e-commerce sales & order support specialist for your WooCommerce store. Chatty connects directly to your WooCommerce REST API v3 to bulk-import your product catalog, answer variant/stock questions with visual product cards, and track customer orders in real time.
 
 ```mermaid
 flowchart LR
-  subgraph Customer ["Visitor Interaction"]
-    V["Customer in Chat"]
+  subgraph Customer ["Shopper in Chat"]
+    V["Web / WhatsApp / IG Visitor"]
   end
-  subgraph Chatty ["Chatty Engine"]
-    W["Widget / WhatsApp"]
+  subgraph Chatty ["Chatty Commerce Engine"]
+    W["Omnichannel Chat"]
     A["AI Shopping Agent"]
-    K["Vector + Catalog Index"]
+    K["Multimodal Product Catalog"]
   end
   subgraph Woo ["WooCommerce Store"]
-    REST["WooCommerce REST API"]
-    WH["WooCommerce Webhooks"]
-    Store["Products & Orders"]
+    REST["WooCommerce REST API v3"]
+    WH["Signed Webhooks (Auto/Manual)"]
+    Store["Existing Products, Variations & Orders"]
   end
 
   V <--> W
   W <--> A
   A <--> K
-  A -- "Live Order / Stock Query" --> REST
+  A -- "Live Order & Stock Verification" --> REST
   Store --> WH
-  WH -- "Real-time updates" --> K
+  WH -- "Real-Time Product Updates" --> K
   REST <--> Store
 ```
 
 ---
 
-## Key Features
+## Integrating an Already-Selling Store (FAQ)
+
+If you are connecting Chatty to an established WooCommerce store that already has hundreds or thousands of products and past customer orders, **you never need to add products or orders one by one**:
 
 <CardGroup cols={2}>
-  <Card title="Live Product Discovery" icon="🛍️">
-    Semantic vector search understands natural queries like *"Do you have running shoes with extra arch support under $120?"* and returns relevant, in-stock products.
+  <Card title="1. Do I need to enter existing products manually?" icon="🚀">
+    **No.** The moment you connect your store, Chatty automatically starts a background **Bulk Catalog Sync** that paginates through your entire published WooCommerce catalog (`100` products per page), expanding variable products (sizes, colors, variant prices, SKUs), stock statuses, sale prices, and gallery images into your AI catalog.
   </Card>
-  <Card title="Interactive Product Cards" icon="💳">
-    Displays visual product cards with images, formatted store currency, current stock status, and direct **Add to Cart** or **Checkout** links.
+  <Card title="2. What happens to historical orders placed before Chatty?" icon="📦">
+    **They work immediately.** Chatty does not require manual order imports. Whenever a customer asks *"Where is my order #1042?"*, Chatty queries your live WooCommerce REST API (`/wp-json/wc/v3/orders`) in real time, verifies the customer's billing email or phone number, and displays live fulfillment and carrier tracking status.
   </Card>
-  <Card title="Automated Order Tracking" icon="📦">
-    Visitors can ask *"Where is my order #12450?"*. Chatty securely validates their email or phone number, then displays carrier tracking, shipping status, and fulfillment updates.
+  <Card title="3. Are webhooks configured automatically or manually?" icon="⚡">
+    **Both are supported.** When you connect using **Read/Write** REST API keys (or click **Auto-Register Webhooks**), Chatty automatically registers `product.created`, `product.updated`, and `product.deleted` webhooks on your store. If you prefer **Read-Only** API keys, Chatty provides your copyable Webhook URL & HMAC Secret for manual setup.
   </Card>
-  <Card title="Real-Time Catalog Sync" icon="🔄">
-    When products are added, updated, or marked out of stock in WooCommerce, Chatty automatically syncs via signed webhooks with zero manual re-indexing.
+  <Card title="4. What if a price or stock level changes in WordPress?" icon="🔄">
+    **Dual-Layer Freshness.** Signed webhooks update your indexed catalog within seconds of any edit in WordPress, and Chatty also performs a live bounded REST API check on matched products during chat so shoppers never see stale prices or out-of-stock items.
   </Card>
 </CardGroup>
 
 ---
 
-## Connecting Your Store
+## Connecting Your WooCommerce Store
 
-Chatty supports both **1-Click OAuth Connection** (recommended for non-technical store owners) and **Manual API Key Setup** (for staging, intranet, or custom WooCommerce deployments).
+Navigate to **Dashboard → Integrations → WooCommerce Store**. You can connect using either **1-Click OAuth** or **Manual REST API Keys**:
 
-### Method A: 1-Click OAuth Setup (Recommended)
+### Method A: 1-Click Automatic OAuth (`wc-auth/v1/authorize`)
 
-1. Open **Chatty Dashboard → Bot Settings → Integrations → WooCommerce**.
-2. Enter your store's public HTTPS URL (e.g. `https://mystore.com`).
-3. Click **Connect with WooCommerce**.
-4. You will be redirected to your WordPress admin screen asking to approve API permissions for Chatty.
-5. Click **Approve**. WooCommerce automatically provisions read/write keys and registers real-time webhooks back to Chatty.
+1. Enter your public HTTPS store URL (e.g. `https://yourstore.com`).
+2. Click **Connect with WooCommerce (1-Click)**.
+3. Approve the connection screen in your WordPress admin.
+4. Chatty immediately saves your encrypted credentials and begins bulk-syncing all existing products in the background.
 
-### Method B: Manual API Key Provisioning
+### Method B: Manual REST API Keys (Recommended for Auto-Webhooks)
 
-If your WordPress server blocks OAuth callbacks or runs behind Cloudflare Access, configure keys manually:
+Using manual **Read/Write** REST API keys allows Chatty to both bulk-sync your catalog **and** automatically register real-time product webhooks in WooCommerce:
 
-1. In WordPress WP-Admin, navigate to **WooCommerce → Settings → Advanced → REST API**.
-2. Click **Add Key**.
-   - **Description**: `Chatty AI Integration`
-   - **User**: Select an admin or shop manager user
-   - **Permissions**: **Read/Write** (required to auto-register webhooks and query live orders)
-3. Click **Generate API Key**. Copy the **Consumer Key** (`ck_...`) and **Consumer Secret** (`cs_...`).
-4. In Chatty Dashboard, enter:
-   - **Store URL**: `https://mystore.com`
-   - **Consumer Key**: `ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
-   - **Consumer Secret**: `cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
-5. Click **Save & Test Connection**.
-
-<Tip title="SSL Certificate Required">
-WooCommerce REST API v3 strictly requires HTTPS. Ensure your store serves a valid SSL certificate; HTTP connections are rejected by WooCommerce core for security.
-</Tip>
+1. In your WordPress Admin, open **WooCommerce → Settings → Advanced → REST API → Add key**.
+2. Configure the key:
+   - **Description**: `Chatty AI Commerce Sync`
+   - **User**: Select an Administrator or Shop Manager account
+   - **Permissions**: Select **Read/Write** *(allows automatic webhook creation)* or **Read** *(if you prefer to add webhooks manually)*
+3. Click **Generate API key** and copy your **Consumer key (`ck_...`)** and **Consumer secret (`cs_...`)**.
+4. In **Chatty Dashboard → Integrations → WooCommerce Store → Manual REST API Keys**, paste your Store URL, Consumer Key, and Consumer Secret, then click **Save & Connect Store**.
+5. Chatty verifies your store, auto-registers the product webhooks, and launches the initial bulk product import.
 
 ---
 
-## Bi-Directional Webhook Synchronization
+## Webhook Configuration: Automatic vs. Manual Setup
 
-Once connected, Chatty automatically registers the following webhook listeners on your WooCommerce store:
+### 1. Automatic Webhook Registration
 
-| Webhook Event | WooCommerce Topic | Chatty Action |
-|---|---|---|
-| `product.created` | `Product Created` | Indexes new product title, description, attributes, variants, and price into bot knowledge base. |
-| `product.updated` | `Product Updated` | Updates pricing, stock status (`instock` / `outofstock`), sale prices, and description in real time. |
-| `product.deleted` | `Product Deleted` | Removes deleted or trashed products immediately from AI recommendations. |
-| `order.created` | `Order Created` | Caches order metadata for instant conversational tracking. |
-| `order.updated` | `Order Updated` | Updates fulfillment status (e.g. `processing` → `completed`), tracking number, and carrier info. |
+When you connect with **Read/Write** keys (or click the **Auto-Register Webhooks** button in your connected WooCommerce card), Chatty calls `POST /wp-json/wc/v3/webhooks` on your store to register three active HMAC-signed webhooks:
+- `Chatty AI Sync (product.created)`
+- `Chatty AI Sync (product.updated)`
+- `Chatty AI Sync (product.deleted)`
 
-### Webhook Delivery Endpoint
+### 2. Manual Webhook Setup (When Using Read-Only Keys)
 
-WooCommerce sends signed payloads to your bot's dedicated ingestion route:
+If your security policy requires **Read-Only** REST API keys, Chatty displays your dedicated **Webhook Delivery URL** and **Webhook Secret** inside **Dashboard → Integrations → WooCommerce Store**:
 
 ```text
-POST https://api.chatty.personaliai.com/api/integrations/woocommerce/webhook/{bot_id}
+https://api.chatty.personaliai.com/api/integrations/woocommerce/webhook/{bot_id}
 ```
 
-Chatty verifies every delivery against the secret provisioned during connection setup. Webhooks that fail HMAC SHA-256 verification are dropped with `401 Unauthorized`.
+To add them manually in WordPress:
+1. Go to **WooCommerce → Settings → Advanced → Webhooks** and click **Add webhook**.
+2. Configure the webhook:
+   - **Name**: `Chatty Product Sync`
+   - **Status**: `Active`
+   - **Topic**: `Product updated` *(repeat for `Product created` and `Product deleted`)*
+   - **Delivery URL**: Paste the **Webhook URL** from Chatty
+   - **Secret**: Paste the **Webhook Secret** from Chatty
+   - **API Version**: `WP REST API Integration v3`
+3. Click **Save webhook**.
 
 ---
 
-## Conversational Shopping Experience
+## Live Order Tracking & Customer Verification
 
-### Product Recommendation Cards
+When a shopper asks *"Where is my order #10842?"* in Web Chat, WhatsApp, Instagram, or Messenger:
 
-When Chatty detects product inquiry intent, it formats store responses into visual product widgets inside the web chat or rich WhatsApp catalog messages:
-
-```json title="Example Bot Response Action"
-{
-  "role": "assistant",
-  "content": "Here are our top waterproof trail running shoes:",
-  "products": [
-    {
-      "id": 1042,
-      "name": "Apex Waterproof Trail Runner",
-      "price": "$129.00",
-      "regular_price": "$149.00",
-      "on_sale": true,
-      "stock_status": "instock",
-      "permalink": "https://mystore.com/product/apex-trail-runner",
-      "add_to_cart_url": "https://mystore.com/cart/?add-to-cart=1042",
-      "thumbnail": "https://mystore.com/wp-content/uploads/apex-shoe.jpg"
-    }
-  ]
-}
-```
-
-### Direct Cart Actions
-
-You can configure Chatty's CTA behavior in **Widget Settings → Commerce**:
-- **Direct Add to Cart**: Clicking the button adds the item directly to the customer's cart via `/?add-to-cart={product_id}` and opens checkout.
-- **Product Page**: Navigates the visitor to the full product detail page.
-- **WhatsApp Catalog Checkout**: On WhatsApp channels, sends native Meta Catalog items allowing in-app cart collection.
-
----
-
-## Order Status & Security Verification
-
-To prevent unauthorized order inspection, Chatty enforces a strict verification challenge before revealing order details:
-
-1. **Visitor Prompt**: *"Where is my order #10842?"*
-2. **Identity Challenge**: If the visitor is not logged into WordPress or their session email is unverified, Chatty prompts:
-   > *"To protect your privacy, please verify the email address or phone number used when placing order #10842."*
-3. **Validation**: Chatty compares the user's input with the billing email/phone on the WooCommerce order.
-4. **Order Summary**: Upon a match, Chatty returns:
-   - Order Status (`Processing`, `Shipped`, `Completed`, `On hold`)
-   - Tracking Carrier & Tracking Number link (supports WooCommerce Shipment Tracking, ShipStation, AfterShip)
-   - Estimated Delivery Date
-   - Line items summary and total amount paid
-
-<Warning title="Customer Privacy Enforcement">
-Chatty will never reveal recipient physical addresses or payment credit card details over chat, regardless of authentication state.
-</Warning>
-
----
-
-## WooCommerce Management API
-
-Developers can manage WooCommerce store links programmatically via the Chatty REST API:
-
-<CodeGroup>
-```bash title="Get Store Status"
-curl -X GET \
-  "https://api.chatty.personaliai.com/api/bots/{bot_id}/integrations/woocommerce" \
-  -H "Authorization: Bearer chatty_sk_..."
-```
-
-```bash title="Connect Store"
-curl -X POST \
-  "https://api.chatty.personaliai.com/api/bots/{bot_id}/integrations/woocommerce/connect" \
-  -H "Authorization: Bearer chatty_sk_..." \
-  -H "Content-Type: application/json" \
-  -d '{
-    "store_url": "https://mystore.com",
-    "consumer_key": "ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    "consumer_secret": "cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  }'
-```
-
-```bash title="Trigger Full Re-sync"
-curl -X POST \
-  "https://api.chatty.personaliai.com/api/bots/{bot_id}/integrations/woocommerce/sync" \
-  -H "Authorization: Bearer chatty_sk_..."
-```
-
-```bash title="Disconnect Store"
-curl -X DELETE \
-  "https://api.chatty.personaliai.com/api/bots/{bot_id}/integrations/woocommerce" \
-  -H "Authorization: Bearer chatty_sk_..."
-```
-</CodeGroup>
+1. **Identity Verification**: Chatty requires the customer to confirm either the **billing email address** or the **billing phone number** on the order.
+2. **Live REST Lookup**: Chatty queries `/wp-json/wc/v3/orders` on your store and inspects shipment tracking metadata (`_wc_shipment_tracking_items`, AfterShip, ShipStation, and per-line-item tracking).
+3. **Interactive Order Card**: Once verified, Chatty renders an interactive Order Card showing the order status (`Processing`, `Completed`, `Partially Shipped`, `Refunded`), line items, and direct carrier tracking links (UPS, USPS, FedEx, DHL, Royal Mail, Canada Post, Australia Post).
 
 <PageNav {...prevNext("/guides/woocommerce")} />

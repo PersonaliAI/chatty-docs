@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Payment Gateways & In-Chat Checkouts",
-  description: "Connect Stripe, PayPal, Lemon Squeezy, and Polar.sh to sync product catalogs and dispatch secure in-chat checkout cards with AI safety policies.",
+  title: "Payment Gateways, Webhooks & Receipt Emails",
+  description: "Connect Stripe, PayPal, Lemon Squeezy, and Polar.sh with AI payment governance rules, automatic webhooks, and branded customer receipt emails.",
 }
 
 import { Note, Tip, Warning, Info } from "@/components/mdx/Callout"
@@ -9,11 +9,15 @@ import { Accordion, AccordionGroup } from "@/components/mdx/Accordion"
 import { PageNav } from "@/components/PageNav"
 import { prevNext } from "@/lib/navigation"
 
-# Payment Gateways & In-Chat Checkouts
+# Payment Gateways, Webhooks & Receipt Emails
 
-Chatty allows your team and AI agents to close deals, collect consultation deposits, and sell products directly within chat threads. Customers never have to leave the conversation or click obscure external links—they receive an interactive, PCI-compliant checkout card right in the message flow.
+Chatty enables your AI agent and human support team to close sales, collect consultation deposits, and sell subscriptions directly inside chat conversations across Web, WhatsApp, Instagram, Messenger, Telegram, and SMS.
 
-Whether you bill via **Stripe**, accept **PayPal**, use **Lemon Squeezy** as a Merchant of Record for global digital tax compliance, or run a developer SaaS on **Polar.sh**, Chatty automatically syncs your existing product pricing plans and provides one-click dispatch from both the Live Agent Inbox and automated workflows.
+Whether you process payments with **Stripe**, **Polar.sh**, **Lemon Squeezy**, or **PayPal**, Chatty provides an end-to-end production pipeline:
+1. **In-Chat Hosted Checkout Cards** (`[CHECKOUT_LINK:{...}]`)
+2. **Centralized AI Payment & Checkout Governance** (autonomous caps, discount rules, and lead requirements configured right inside your Payment Gateway view)
+3. **Automatic & Manual Gateway Webhooks** (`/api/bots/{bot_id}/webhooks/payments/{provider}`)
+4. **Automated Customer Receipt & Status Emails** with a live **Receipt & Email Designer** in both the **Integrations** and **Orders & Sales** tabs
 
 ---
 
@@ -21,157 +25,141 @@ Whether you bill via **Stripe**, accept **PayPal**, use **Lemon Squeezy** as a M
 
 <CardGroup cols={2}>
   <Card title="Stripe" icon="💳">
-    Direct card processing, Apple Pay, Google Pay, SEPA, and 40+ local payment methods via Stripe Hosted Checkout.
-  </Card>
-  <Card title="PayPal" icon="🅿️">
-    PayPal balance, cards, and Pay Later through a hosted PayPal approval page (Orders v2). Custom amounts only; PayPal has no one-time price catalog.
-  </Card>
-  <Card title="Lemon Squeezy" icon="🍋">
-    Merchant of Record (MoR) platform handling global sales tax, VAT, invoicing, and cross-border digital compliance automatically.
+    Direct card processing, Apple Pay, Google Pay, SEPA, and 40+ payment methods via Stripe Hosted Checkout. Supports 1-click automatic webhook registration.
   </Card>
   <Card title="Polar.sh" icon="🐻">
-    Developer-centric monetization for SaaS tiers, open-source sponsorship, license keys, and recurring subscriptions.
+    Developer-first Merchant of Record for SaaS tiers, digital products, license keys, and recurring subscriptions. Supports Organization Access Tokens (`polar_oat_...`) and automatic webhooks.
+  </Card>
+  <Card title="Lemon Squeezy" icon="🍋">
+    Merchant of Record (MoR) platform handling global sales tax, EU VAT, invoicing, and cross-border digital compliance automatically.
+  </Card>
+  <Card title="PayPal" icon="🅿️">
+    PayPal balance, credit/debit cards, and Pay Later through a hosted PayPal Orders v2 approval flow with automatic webhook registration.
   </Card>
 </CardGroup>
 
 ---
 
-## How In-Chat Checkouts Work
-
-Chatty generates PCI-compliant hosted checkout sessions and renders them as branded interactive cards in chat using the format `[CHECKOUT_LINK:{...}]`.
+## End-to-End Payment & Receipt Flow
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Customer as Visitor / Customer
-    participant Chatty as Chatty Widget / Inbox
+    participant Chatty as Chatty AI / Live Inbox
     participant API as Chatty Payment Engine
-    participant Gateway as Stripe / Lemon Squeezy / Polar
+    participant Gateway as Stripe / Polar / Lemon Squeezy / PayPal
+    participant Email as Transactional Email Engine
     
     Customer->>Chatty: "I'd like to purchase the Pro Plan"
-    Chatty->>API: Request Checkout Session (BotID, Product/Amount, Customer Email)
-    API->>API: Verify Policy: Is AI Checkout Allowed? (ai_payment_allowed)
-    API->>Gateway: Create Hosted Checkout Session API Call
-    Gateway-->>API: checkoutUrl (e.g. checkout.stripe.com/c/pay/cs_live_...)
-    API-->>Chatty: Return [CHECKOUT_LINK:{ title, amount, currency, checkout_url, provider }]
-    Chatty-->>Customer: Renders Responsive In-Chat Payment Card
-    Customer->>Gateway: Clicks "Pay Securely" -> Completes Payment on 256-Bit SSL Gateway
-    Gateway-->>API: Webhook (checkout.session.completed / order_created)
-    API-->>Chatty: Emit Flow Triggers & Send Receipt to Customer
+    Chatty->>API: Check AI Payment Governance (Allowed? Under Max Cap? Directives met?)
+    API->>Gateway: Create Hosted Checkout Session (with metadata: bot_id, order_id, session_id)
+    Gateway-->>API: Return Secure Hosted Checkout URL
+    API-->>Chatty: Render Interactive Checkout Card in Chat + Log "pending" Order
+    Customer->>Gateway: Clicks "Pay Securely" & Completes Payment
+    Gateway-->>API: POST /api/bots/{bot_id}/webhooks/payments/{provider}
+    API->>API: Mark Order "succeeded" + Confirm Paid Booking (if attached)
+    API-->>Chatty: Post Instant Payment Confirmation Message in Chat Thread
+    API->>Email: Send Branded HTML Receipt to Customer + New Sale Alert to Bot Owner
 ```
 
 ---
 
-## Two Checkout Modes: Catalog Sync vs Custom Amount
+## Centralized AI Payment & Checkout Governance
 
-When dispatching payment requests from the **Live Agent Inbox**, agents have two powerful options:
-
-### 1. Synced Products & Pricing Plans
-Chatty connects directly to your payment gateway's API and automatically imports all your active products, variants, and pricing tiers:
-- **Stripe**: Queries active prices and expanded product objects (`/v1/prices?expand[]=data.product`).
-- **Lemon Squeezy**: Fetches store products, descriptions, and variant price configurations (`/v1/products?include=variants`).
-- **Polar.sh**: Queries active products, recurring intervals, and custom pricing schemes (`/v1/products`).
-- **PayPal**: No catalog sync. PayPal does not store prices for one-time products, so use Custom One-Time Amount.
-
-Agents can search the catalog in real-time, inspect formatted prices, and click once to generate a branded checkout link tied directly to that plan.
-
-### 2. Custom One-Time Amount
-For ad-hoc custom scopes, emergency retainers, or tailored quotes:
-- Enter any custom line-item title (e.g. *"2-Hour Architecture Advisory"*).
-- Specify the exact amount (minimum $0.50).
-- Select any supported billing currency (USD, EUR, GBP, CAD, AUD, etc.).
-- Chatty instantly spins up a secure one-off payment session.
-
-<Warning>
-**Lemon Squeezy limitation:** Lemon Squeezy cannot create products from code. A custom amount overrides the price of an *existing* product variant, so Chatty attaches it to the variant you pick (or your first synced one). Keep at least one published product in your store, otherwise custom-amount checkouts return an error.
-</Warning>
-
----
-
-## In-Chat Checkout Card Anatomy
-
-The customer receives a clean, mobile-responsive card embedded right inside their message stream:
-
-- **Provider Badge**: Clearly displays whether the link is powered by Stripe, Lemon Squeezy, or Polar.
-- **Plan Title & Amount**: Displays the exact line item name and formatted price (e.g., `$49.00 USD`).
-- **Recurring / One-Time Indicator**: Clearly indicates if the payment is a monthly subscription or a one-off deposit.
-- **Pay Securely CTA**: Opens the PCI-DSS Level 1 hosted checkout window.
-- **Encrypted Trust Seals**: Reinforces consumer trust with 256-bit SSL and Level 1 PCI badges.
-
-<Tip>
-When a visitor is already identified (e.g., entered their email in a lead capture form or logged into your portal), Chatty pre-populates the customer's email in the checkout session so they don't have to retype it.
-</Tip>
-
----
-
-## AI Agent Payment Safeguards & Human Takeover
-
-Autonomous AI agents handling money require strict boundaries. To prevent prompt injection exploits, accidental misquoting, or unapproved discounts, Chatty implements a **multi-tiered policy engine**:
+All AI payment rules and safety guardrails live directly inside **Dashboard → Integrations → [Your Payment Gateway]** (rather than buried in general Agent Settings), and apply uniformly across all connected payment gateways:
 
 <AccordionGroup>
-  <Accordion title="Autonomous AI Checkout Policy (ai_payment_allowed)">
-    By default, you can restrict payment generation so that **only verified human agents** in the Live Inbox can dispatch checkout links. 
-    
-    If disabled, any attempt by an autonomous bot prompt or AI tool invocation to generate a payment session is blocked with a `403 Forbidden` at the service boundary.
+  <Accordion title="1. Autonomous AI Checkout Toggle (AI Permitted vs AI Restricted)">
+    - **AI Permitted (`ai_payment_allowed = true`)**: Your AI agent can autonomously call `create_payment_checkout_link` during conversations when a customer asks to buy a product, pay an invoice, or book a paid consultation.
+    - **AI Restricted (`ai_payment_allowed = false`)**: The AI agent is strictly blocked from generating payment links (`403 Forbidden` at the service boundary) and instead informs the buyer that a human specialist will dispatch a verified checkout link from the **Live Inbox**.
   </Accordion>
-  <Accordion title="Maximum AI Transaction Ceiling (ai_max_amount_cents)">
-    When AI payments are permitted, you can set a hard cap (e.g., maximum $100.00). Any automated transaction exceeding this ceiling is aborted and escalated to human takeover.
+  <Accordion title="2. Maximum Autonomous Transaction Cap ($)">
+    Set a dollar ceiling (e.g., `$250`). Any checkout request up to `$250` is generated autonomously by the AI agent, while higher-ticket deals automatically escalate to your human sales team in the Inbox.
   </Accordion>
-  <Accordion title="Automated Escalation to Live Inbox">
-    If an AI bot encounters a visitor who is ready to purchase but AI payment generation is turned off, the conversation is automatically tagged `needs_payment_dispatch` and prioritized in the Live Inbox for human agent review.
+  <Accordion title="3. AI Payment & Checkout Directives (Custom Rules & Presets)">
+    Provide natural-language commercial rules that are injected directly into the AI agent's system prompt whenever payment tools are active. You can also click any of the **Quick-Insert Presets**:
+    - 🛡️ **Require Lead Info First**: Always collect Full Name, Business Email, and Phone before generating a checkout link.
+    - 🏷️ **10% Courtesy Discount Cap**: Authorize up to a 10% courtesy discount only if the visitor objects to price.
+    - 💼 **Escalate Deals > $500**: Invite enterprise buyers to book a strategy call rather than sending a self-serve link.
+    - 🔄 **14-Day Refund Guarantee**: Proactively mention your refund policy before checkout.
+    - ⚡ **Instant Order Confirmation**: Acknowledge payment completion and inform the buyer that their receipt was emailed.
   </Accordion>
 </AccordionGroup>
 
 ---
 
-## Industrial-Grade Security & Compliance
+## Webhook Setup: Automatic vs. Manual Configuration
 
-Chatty is built from the ground up to satisfy stringent fintech security requirements:
+Real-time webhooks allow Stripe, Polar.sh, Lemon Squeezy, and PayPal to notify Chatty the instant a customer completes checkout or receives a refund.
 
-| Security Vector | Implementation Standard |
-|---|---|
-| **Cardholder Data (PAN & CVV)** | **Zero Footprint**: Chatty never touches, transmits, or stores raw credit card numbers. All payments execute via gateway-hosted checkout sessions (PCI-DSS Level 1 compliant). |
-| **Secret Key Encryption at Rest** | All gateway Secret Keys, Access Tokens, and Webhook Secrets are encrypted using **Fernet AES-256 symmetric encryption** prior to database insertion. |
-| **Masked Dashboard Previews** | Live API keys are masked upon entry (`sk_live_••••••4821`). Raw unencrypted keys are never re-exposed over the dashboard API. |
-| **Webhook Cryptographic Signatures** | Inbound payment completion events are validated against HMAC SHA-256 signatures (`Stripe-Signature`, Lemon Squeezy `X-Signature`, Polar webhooks) to reject spoofed payment confirmations. |
-| **Database Isolation** | Multitenant payment credentials are strictly isolated per bot via PostgreSQL foreign key constraints and Row-Level Security. |
+### Your Dedicated Webhook Endpoint URL
 
-<Warning>
-Never store live payment secret keys in unencrypted environment files or client-side bundles. Always use the encrypted Integrations tab in your Chatty Dashboard.
-</Warning>
+Every connected payment gateway displays its dedicated webhook endpoint inside **Dashboard → Integrations → [Provider]**:
+
+```text
+POST https://api.chatty.personaliai.com/api/bots/{bot_id}/webhooks/payments/{provider}
+```
+*(where `{provider}` is `stripe`, `polar`, `lemonsqueezy`, or `paypal`)*
+
+### 1. Automatic Webhook Registration (1-Click)
+
+When you click **Verify & Connect** (or click the **Auto-Register Webhook** button on an already-connected gateway), Chatty automatically calls the payment provider's API to:
+1. Check if the webhook endpoint is already registered on your account (preventing duplicate endpoints).
+2. Register `https://api.chatty.personaliai.com/api/bots/{bot_id}/webhooks/payments/{provider}` for all required payment & refund events.
+3. Retrieve and encrypt the provider's **Webhook Signing Secret** (`whsec_...` or HMAC secret) in `chatty_payment_integrations`.
+
+When automatic registration succeeds, you will see the green **Auto-Registered** badge next to your webhook URL.
+
+### 2. Manual Webhook Setup Guide (Fallback)
+
+If your API token is scoped as read-only or lacks webhook management permissions (for example, a Polar.sh token created without `webhooks:write`), you can configure the webhook manually in 60 seconds:
+
+- **Stripe**:
+  1. Open **Stripe Dashboard → Developers → Webhooks → Add endpoint**.
+  2. Paste your **Webhook Endpoint URL** from Chatty.
+  3. Select events: `checkout.session.completed`, `payment_intent.succeeded`, `payment_intent.payment_failed`, and `charge.refunded`.
+  4. Copy the **Signing secret (`whsec_...`)** and paste it into the Stripe integration card in Chatty.
+- **Polar.sh**:
+  1. Open **Polar.sh Dashboard → Settings → Webhooks → Add Endpoint**.
+  2. Paste your **Webhook Endpoint URL** and select payload format **RAW (JSON)**.
+  3. Enable events: `checkout.updated`, `order.created`, `order.paid`, and `order.refunded`.
+  4. *(Tip: Enable the `webhooks:write` scope on your `polar_oat_...` token to let Chatty register this automatically with 1 click.)*
+- **Lemon Squeezy**:
+  1. Open **Lemon Squeezy Dashboard → Settings → Webhooks → + Create Webhook**.
+  2. Paste your **Webhook Endpoint URL** into the Callback URL field.
+  3. Select events: `order_created`, `order_refunded`, `subscription_payment_success`, and `subscription_payment_failed`.
+- **PayPal**:
+  1. Open [developer.paypal.com](https://developer.paypal.com/dashboard/applications), select your REST App, and scroll to **Webhooks → Add Webhook**.
+  2. Paste your **Webhook Endpoint URL**.
+  3. Enable events: `CHECKOUT.ORDER.APPROVED`, `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.REFUNDED`, and `PAYMENT.CAPTURE.DENIED`.
 
 ---
 
-## Setup & Configuration
+## Automated Customer Receipt Emails & Email Designer
 
-### 1. Connecting Stripe
-1. Navigate to **Dashboard** → **Integrations** → **Stripe**.
-2. Retrieve your **Publishable Key** (`pk_live_...` or `pk_test_...`) and **Secret Key** (`sk_live_...` or `sk_test_...`) from the [Stripe Developers Dashboard](https://dashboard.stripe.com/apikeys).
-3. (Optional) Provide your **Webhook Secret** (`whsec_...`) for real-time payment reconciliation.
-4. Click **Connect Stripe**. Chatty verifies the credentials in real-time, encrypts them at rest, and imports your existing Stripe Products & Pricing catalog.
+Whenever a payment succeeds or an order status changes (`succeeded`, `refunded`, `failed`), Chatty automatically sends a responsive, branded HTML email to the customer (and an optional **New Sale Alert** to the bot owner).
 
-### 2. Connecting Lemon Squeezy
-1. In the **Integrations** tab, locate **Lemon Squeezy**.
-2. Generate an API Key in your [Lemon Squeezy Settings](https://app.lemonsqueezy.com/settings/api).
-3. Enter your **API Key** and your numeric **Store ID**.
-4. Click **Connect Lemon Squeezy**. Chatty syncs all products and active variants from your store.
+### Customizing Your Receipt & Status Email Design
 
-### 3. Connecting PayPal
-1. Create a **REST app** at [developer.paypal.com](https://developer.paypal.com/dashboard/applications).
-2. In **Integrations**, open **PayPal** and enter the app's **Client ID** and **Client Secret**.
-3. Keep **Test Mode** on for sandbox credentials and turn it off for live credentials. Mismatched credentials fail verification.
+You can customize and preview your transactional order emails from two convenient places:
+- **Dashboard → Integrations → [Stripe / Polar / Lemon Squeezy / PayPal] → Automated Payment Receipt & Status Emails**
+- **Dashboard → Orders & Sales → Receipt & Email Design** button (top right header)
 
-### 4. Connecting Polar.sh
-1. In the **Integrations** tab, locate **Polar.sh**.
-2. Create an **Organization Access Token** in your [Polar Developer Settings](https://polar.sh/settings).
-3. Enter your token and **Organization ID**.
-4. Click **Connect Polar.sh** to import your digital SaaS tiers and subscriptions.
+#### Configurable Design Options:
+- **Customer Receipts Toggle**: Automatically email buyers when their payment is confirmed, refunded, or fails.
+- **Owner Sale Alert Toggle**: Send an instant revenue notification email to the bot owner whenever a checkout succeeds.
+- **Brand Header Color**: Choose any hex color (or quick swatch) for the email header banner and callout borders.
+- **Support Reply-To Email**: Displayed in the receipt footer and configured as the `Reply-To` header so customers can reply directly to your support team.
+- **Custom Receipt Note / Onboarding Instructions**: Add a custom message box inside the receipt (e.g., *"Thank you for your purchase! Your license key and onboarding call link will arrive within 5 minutes."*).
+- **Live Interactive Preview**: Switch between **Paid Receipt**, **Refund Issued**, and **Payment Link** tabs to preview the exact HTML layout before saving.
 
-### 5. Sandbox & Test Mode
-Every payment gateway supports a **Test Mode** toggle. When enabled:
-- Stripe routes transactions through its test environment (`sk_test_...`).
-- Lemon Squeezy and Polar use sandbox test orders.
-- Agents can safely test the in-chat checkout flow without incurring actual credit card charges.
+### Resending Receipts or Emailing Status Updates Manually
+
+In **Dashboard → Orders & Sales**:
+1. Click the **Mail icon (`✉️`)** on any transaction row to immediately send or resend the current receipt/status email to the customer.
+2. Or click any transaction row to open the **Transaction Dossier** drawer, enter or update the recipient email address under **Customer Email Dispatch**, and click **Send Receipt Email**.
+3. Clicking **Mark Paid & Email Receipt** or **Mark Refunded & Email** inside the drawer updates the audit status and automatically dispatches the corresponding email notification to the buyer.
 
 ---
 
