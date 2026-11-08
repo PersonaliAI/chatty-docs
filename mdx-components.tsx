@@ -52,6 +52,11 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     WordPressSettingsMockup,
     Mermaid,
     pre: MDXPre,
+    table: ({ children, ...props }: React.ComponentPropsWithoutRef<"table">) => (
+      <div className="my-6 w-full overflow-x-auto">
+        <table {...props}>{children}</table>
+      </div>
+    ),
     ...components,
   };
 }

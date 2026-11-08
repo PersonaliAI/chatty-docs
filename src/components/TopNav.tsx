@@ -39,7 +39,7 @@ function SearchModal({ onClose }: { onClose: () => void }) {
   }, [onClose]);
 
   return (
-    <div className="docs-search-modal fixed inset-0 z-50 flex items-start justify-center pt-20 px-4" onClick={onClose}>
+    <div className="docs-search-modal fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 px-3 sm:px-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <div className="relative w-full max-w-xl bg-[--bg] rounded-xl border border-[--border] shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-3 px-4 py-3 border-b border-[--border]">
@@ -49,7 +49,7 @@ function SearchModal({ onClose }: { onClose: () => void }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search documentation..."
-            className="flex-1 bg-transparent text-[--text] placeholder:text-[--text-subtle] outline-none text-sm"
+            className="flex-1 min-w-0 bg-transparent text-[--text] placeholder:text-[--text-subtle] outline-none text-sm"
           />
           <kbd className="text-[10px] text-[--text-subtle] border border-[--border] rounded px-1.5 py-0.5">ESC</kbd>
         </div>
@@ -81,9 +81,9 @@ export function TopNav({ onMenuToggle, menuOpen }: { onMenuToggle: () => void; m
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 h-[--topbar-h] bg-[--bg]/90 backdrop-blur border-b border-[--border] flex items-center px-4 gap-4">
+      <header className="fixed top-0 left-0 right-0 z-40 h-[--topbar-h] bg-[--bg]/90 backdrop-blur border-b border-[--border] flex items-center px-3 sm:px-4 gap-2 sm:gap-4">
         {/* Logo */}
-        <Link href="/introduction" className="flex items-center gap-2.5 shrink-0 mr-1 sm:mr-2">
+        <Link href="/introduction" className="flex items-center gap-2 sm:gap-2.5 shrink-0 mr-0.5 sm:mr-2">
           <div className="w-7 h-7 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-sm shrink-0">C</div>
           <span className="font-semibold text-sm text-[--text]">Chatty</span>
           <span className="hidden sm:inline-block text-xs text-[--text-subtle] bg-[--bg-muted] rounded px-1.5 py-0.5 font-mono">docs</span>
@@ -91,10 +91,13 @@ export function TopNav({ onMenuToggle, menuOpen }: { onMenuToggle: () => void; m
 
         {/* Search */}
         <button onClick={() => setSearchOpen(true)}
-          className="flex-1 min-w-0 max-w-xs flex items-center gap-2 px-3 py-1.5 text-sm text-[--text-muted] bg-[--bg-subtle] border border-[--border] rounded-lg hover:border-brand-500/50 transition-colors">
+          className="flex-1 min-w-0 max-w-xs flex items-center gap-2 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm text-[--text-muted] bg-[--bg-subtle] border border-[--border] rounded-lg hover:border-brand-500/50 transition-colors">
           <Search size={13} className="shrink-0" />
-          <span className="flex-1 min-w-0 truncate text-left text-[--text-subtle]">Search docs...</span>
-          <kbd className="text-[10px] border border-[--border] rounded px-1 py-0.5 hidden sm:block">?K</kbd>
+          <span className="flex-1 min-w-0 truncate text-left text-[--text-subtle]">
+            <span className="sm:hidden">Search...</span>
+            <span className="hidden sm:inline">Search docs...</span>
+          </span>
+          <kbd className="text-[10px] border border-[--border] rounded px-1 py-0.5 hidden sm:block">&#8984;K</kbd>
         </button>
 
         {/* Spacer only on desktop — on mobile the search takes the free space */}
@@ -117,7 +120,7 @@ export function TopNav({ onMenuToggle, menuOpen }: { onMenuToggle: () => void; m
         </a>
 
         {/* Mobile menu toggle */}
-        <button className="lg:hidden p-2 rounded-lg hover:bg-[--bg-muted] text-[--text-muted]" onClick={onMenuToggle}>
+        <button className="lg:hidden p-2 rounded-lg hover:bg-[--bg-muted] text-[--text-muted] shrink-0" onClick={onMenuToggle} aria-label="Toggle navigation menu">
           {menuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </header>

@@ -46,6 +46,16 @@ export function Sidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () =>
 
       {/* Bottom links */}
       <div className="mt-auto pt-5 border-t border-[--border] space-y-0.5">
+        {mobile && (
+          <a href="https://chatty.personaliai.com/signup" target="_blank" rel="noreferrer"
+            className="flex sm:hidden items-center justify-center gap-1.5 mb-2 bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-colors">
+            Get started
+          </a>
+        )}
+        <a href="https://chatty.personaliai.com/dashboard" target="_blank" rel="noreferrer"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[--text-muted] hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
+          <span className="text-xs">&#8599;</span> Dashboard
+        </a>
         <a href="https://chatty.personaliai.com" target="_blank" rel="noreferrer"
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[--text-muted] hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
           <span className="text-xs">&#8599;</span> chatty.personaliai.com

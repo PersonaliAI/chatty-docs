@@ -57,7 +57,7 @@ export function Mermaid({ chart }: MermaidProps) {
   if (!svg) {
     return (
       <div
-        className="my-8 overflow-x-auto rounded-2xl border border-[--border] bg-[--surface] p-4 shadow-sm"
+        className="my-6 sm:my-8 w-full max-w-full overflow-x-auto rounded-2xl border border-[--border] bg-[--surface] p-3 sm:p-4 shadow-sm"
         aria-label="Architecture diagram"
       >
         <div className="h-24 animate-pulse rounded-xl bg-[--surface-muted]" aria-hidden="true" />
@@ -67,12 +67,12 @@ export function Mermaid({ chart }: MermaidProps) {
 
   return (
     <div
-      className="my-8 overflow-x-auto rounded-2xl border border-[--border] bg-[--surface] p-4 shadow-sm"
+      className="my-6 sm:my-8 w-full max-w-full overflow-x-auto rounded-2xl border border-[--border] bg-[--surface] p-3 sm:p-4 shadow-sm"
       aria-label="Architecture diagram"
       tabIndex={0}
     >
       <div
-        className="min-w-[1400px] [&_svg]:block [&_svg]:h-auto [&_svg]:w-full [&_svg]:max-w-none"
+        className="min-w-[600px] sm:min-w-[900px] md:min-w-[1100px] [&_svg]:block [&_svg]:h-auto [&_svg]:w-full [&_svg]:max-w-none"
         dangerouslySetInnerHTML={{ __html: svg }}
       />
     </div>

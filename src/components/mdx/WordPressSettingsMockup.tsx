@@ -15,19 +15,19 @@ export function WordPressSettingsMockup() {
   return (
     <div className="not-prose my-8 overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-xl shadow-neutral-950/5 dark:shadow-black/40 transition-all">
       {/* Window Header */}
-      <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800/80 bg-neutral-50/90 dark:bg-neutral-900/90 px-4 py-3 select-none backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1.5">
+      <div className="flex items-center justify-between gap-2 flex-wrap border-b border-neutral-200 dark:border-neutral-800/80 bg-neutral-50/90 dark:bg-neutral-900/90 px-3.5 sm:px-4 py-3 select-none backdrop-blur-md">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="flex gap-1.5 shrink-0">
             <span className="h-3 w-3 rounded-full bg-red-400/80 border border-red-500/20" />
             <span className="h-3 w-3 rounded-full bg-amber-400/80 border border-amber-500/20" />
             <span className="h-3 w-3 rounded-full bg-emerald-400/80 border border-emerald-500/20" />
           </div>
-          <span className="ml-2 text-xs font-medium text-neutral-400 dark:text-neutral-500 font-mono">
+          <span className="ml-1 sm:ml-2 text-xs font-medium text-neutral-400 dark:text-neutral-500 font-mono truncate">
             wp-admin / options-general.php?page=personaliai-chatbot
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-400/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-500/10 dark:bg-emerald-400/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Connected &bull; v1.0.4
           </span>
@@ -35,7 +35,7 @@ export function WordPressSettingsMockup() {
       </div>
 
       {/* Main Settings Body */}
-      <div className="p-6 md:p-8 space-y-6">
+      <div className="p-4 sm:p-6 md:p-8 space-y-6">
         {/* Title & Badge */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-100 dark:border-neutral-800 pb-5">
           <div className="flex items-center gap-3">

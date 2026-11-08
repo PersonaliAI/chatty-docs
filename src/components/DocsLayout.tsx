@@ -15,7 +15,7 @@ export function DocsLayout({ children }: { children: React.ReactNode }) {
       {menuOpen && (
         <div className="fixed inset-0 z-30 lg:hidden" onClick={() => setMenuOpen(false)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          <div className="docs-mobile-menu absolute left-0 top-[--topbar-h] bottom-0 w-72 bg-[--bg] border-r border-[--border] overflow-y-auto">
+          <div className="docs-mobile-menu absolute left-0 top-[--topbar-h] bottom-0 w-72 max-w-[85vw] bg-[--bg] border-r border-[--border] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <Sidebar mobile onClose={() => setMenuOpen(false)} />
           </div>
         </div>
@@ -28,8 +28,8 @@ export function DocsLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Main content — generous padding so text breathes */}
-        <main className="flex-1 lg:ml-[--sidebar-w] min-w-0">
-          <div className="max-w-[740px] mx-auto px-8 py-12 xl:px-14 2xl:px-16">
+        <main className="flex-1 lg:ml-[--sidebar-w] min-w-0 overflow-x-hidden">
+          <div className="max-w-[740px] mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-10 md:py-12 xl:px-14 2xl:px-16">
             <div className="mdx-content">
               {children}
             </div>

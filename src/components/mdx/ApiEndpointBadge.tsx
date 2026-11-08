@@ -10,11 +10,11 @@ const METHOD_COLORS: Record<string, string> = {
 
 export function ApiEndpointBadge({ method, path }: { method: string; path: string }) {
   return (
-    <div className="flex items-center gap-2 my-5 not-prose font-mono text-sm">
-      <span className={clsx("px-2.5 py-1 rounded-md border font-bold text-xs", METHOD_COLORS[method.toUpperCase()] || "bg-[--bg-muted] text-[--text-muted] border-[--border]")}>
+    <div className="flex items-center flex-wrap gap-2 my-5 not-prose font-mono text-sm">
+      <span className={clsx("px-2.5 py-1 rounded-md border font-bold text-xs shrink-0", METHOD_COLORS[method.toUpperCase()] || "bg-[--bg-muted] text-[--text-muted] border-[--border]")}>
         {method.toUpperCase()}
       </span>
-      <code className="text-[--text] bg-[--bg-muted] border border-[--border] rounded-md px-3 py-1 text-sm">
+      <code className="min-w-0 max-w-full overflow-x-auto break-all sm:break-normal text-[--text] bg-[--bg-muted] border border-[--border] rounded-md px-3 py-1 text-xs sm:text-sm">
         {path}
       </code>
     </div>
