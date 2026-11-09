@@ -10,6 +10,31 @@ Release notes for the Chatty platform and API.
 
 ---
 
+## November 2026
+
+### 2026-11-09 — Slack Real-Time Escalation Suite & Full Read-Only WooCommerce REST API Engine
+
+- **Bi-Directional Slack Escalation**:
+  - Connect Slack Incoming Webhooks or Slack Bot Tokens (`xoxb-`) per bot under **Dashboard → Integrations → Slack**.
+  - **Block Kit Escalation Cards**: Formatted alerts dispatch immediately upon keyword triggers, sentiment drop, or explicit visitor takeover request, featuring visitor metadata, sentiment badge, and recent transcript context.
+  - **Interactive 1-Click Actions**: Support agents can claim conversations (**Take Over**) or close them (**Resolve**) directly from Slack without opening the dashboard.
+  - **Real-Time Slack-to-Visitor Relay**: Agent thread replies in Slack are instantly pushed into the visitor chat widget via WebSockets and logged in the shared inbox.
+  - **Flow Builder Action Nodes**: Automate escalation via `action.slack` nodes inside custom routing flows.
+  - **HMAC Signature Security**: Cryptographic request verification with replay attack prevention (`X-Slack-Signature` and timestamp checks).
+  - See the complete [Slack Escalation Guide](/guides/slack) for setup instructions.
+
+- **10-Category Read-Only WooCommerce REST API Engine (`wc/v3`)**:
+  - **Products & Live Filters**: List products, lookup by ID or SKU, filter by category/tag, search queries, `featured=true`, `on_sale=true`, `stock_status=instock`, and ordering by popularity, rating, or date.
+  - **Product Variations**: Real-time inspection of sizes, colors, dynamic sale prices, and stock counts per variation.
+  - **Taxonomies & Attributes**: Browse categories, tags, attributes, and terms (Brand, Size, Material).
+  - **Reviews & Ratings**: Fetch customer reviews, star ratings, and verified buyer status.
+  - **Shipping & Gateways**: Store configuration lookups for shipping zones, methods, classes, and payment gateways with sanitized customer-facing outputs.
+  - **Protected Orders & Customer Profiles**: Look up order status, tracking, and customer records with strict server-side email/phone ownership verification.
+  - **Coupons & Promotional Integrity**: Validates individual promo codes by code lookups without exposing unauthenticated bulk coupon dumps.
+  - See the comprehensive [WooCommerce Guide](/guides/woocommerce) for all endpoints and query parameters.
+
+---
+
 ## October 2026
 
 ### 2026-10-30 — Multi-Gateway In-Chat Payments & Product Catalog Sync

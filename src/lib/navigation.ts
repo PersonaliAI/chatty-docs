@@ -51,6 +51,7 @@ export const navigation: NavGroup[] = [
       { title: "React & Next.js",      href: "/guides/react-sdk" },
       { title: "WordPress Plugin",     href: "/guides/wordpress" },
       { title: "WhatsApp Channel",     href: "/guides/whatsapp" },
+      { title: "Slack Escalation",     href: "/guides/slack" },
       { title: "MCP Server",           href: "/guides/mcp" },
       { title: "AI Coding Plugins",    href: "/guides/ai-coding-plugins" },
       { title: "Payment Gateways & Checkouts", href: "/guides/payment-gateways" },

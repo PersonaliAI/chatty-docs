@@ -125,4 +125,86 @@ When a shopper asks *"Where is my order #10842?"* in Web Chat, WhatsApp, Instagr
 2. **Live REST Lookup**: Chatty queries `/wp-json/wc/v3/orders` on your store and inspects shipment tracking metadata (`_wc_shipment_tracking_items`, AfterShip, ShipStation, and per-line-item tracking).
 3. **Interactive Order Card**: Once verified, Chatty renders an interactive Order Card showing the order status (`Processing`, `Completed`, `Partially Shipped`, `Refunded`), line items, and direct carrier tracking links (UPS, USPS, FedEx, DHL, Royal Mail, Canada Post, Australia Post).
 
+---
+
+## Read-Only Live WooCommerce REST API Capabilities
+
+Chatty features a dedicated, high-performance Read-Only WooCommerce REST API engine (`/wp-json/wc/v3`) that connects directly to your store without ever requiring write permissions for shopper queries.
+
+All 10 shopper-facing endpoint categories are fully supported with strict server-side security:
+
+### 1. Products (Public & Customer-Facing)
+- `GET /products`: List products with server-side filtering.
+- `GET /products/{id}`: Live product details, dimensions, weight, stock quantity, and gallery images.
+- `GET /products?sku={sku}`: Exact and partial SKU lookup.
+- `GET /products?category={id}`: Filter products by category ID or slug.
+- `GET /products?tag={id}`: Filter products by tag ID or slug.
+- `GET /products?search={query}`: Keyword and title search.
+- `GET /products?featured=true`: Filter store featured products.
+- `GET /products?on_sale=true`: Filter active sale/discounted items.
+- `GET /products?stock_status=instock`: Filter available in-stock items.
+- `GET /products?orderby=popularity`: Top-selling products.
+- `GET /products?orderby=rating`: Top-rated products based on customer reviews.
+- `GET /products?orderby=date`: Latest and newly arrived products.
+
+### 2. Product Variations
+- `GET /products/{id}/variations`: List all sellable variations for variable products (sizes, colors, materials, prices, and stock counts).
+- `GET /products/{id}/variations/{variation_id}`: Inspect specific variation details, variant SKUs, and variant-specific pricing.
+
+### 3. Categories
+- `GET /products/categories`: All public product categories and product counts.
+- `GET /products/categories/{id}`: Category details, description, and hierarchy.
+
+### 4. Product Attributes & Terms
+- `GET /products/attributes`: List global product attributes (e.g., Size, Color, Material, Brand).
+- `GET /products/attributes/{id}`: Specific attribute details.
+- `GET /products/attributes/{id}/terms`: Available options/values for an attribute (e.g., XS, S, M, L, XL).
+- `GET /products/attributes/{id}/terms/{term_id}`: Details for an individual attribute option.
+
+### 5. Product Tags
+- `GET /products/tags`: List product tags.
+- `GET /products/tags/{id}`: Specific tag details and item counts.
+
+### 6. Product Reviews & Ratings
+- `GET /products/reviews`: Approved customer reviews.
+- `GET /products/reviews/{id}`: Specific review details.
+- `GET /products/{id}`: Aggregate average rating and review counts.
+
+### 7. Shipping Information (Sanitized Safe View)
+- `GET /shipping/zones`: Available shipping zones and regions.
+- `GET /shipping/zones/{id}`: Zone details.
+- `GET /shipping/zones/{id}/locations`: Covered countries, states, and postal codes.
+- `GET /shipping/zones/{id}/methods`: Shipping methods, flat rates, and free shipping minimum order amounts.
+- `GET /products/shipping_classes`: Store shipping classes (e.g., Heavy items, Express parcel).
+
+### 8. Payment Information (Sanitized Safe View)
+- `GET /payment_gateways`: Active checkout payment gateways (e.g., Stripe, PayPal, COD, Klarna).
+- `GET /payment_gateways/{id}`: Gateway details and supported features.
+- **Security**: All internal credentials, webhook secrets, and private API keys are strictly stripped before returning data to the AI agent or customer.
+
+### 9. Customer-Specific Endpoints (Strict Server-Side Verification)
+- `GET /customers/{id}`: Customer profile and order history count.
+- `GET /orders`: Recent customer orders.
+- `GET /orders/{id}`: Order details, line items, and fulfillment tracking numbers.
+- `GET /orders/{id}/notes`: Customer-visible merchant notes only (internal private staff notes are strictly excluded).
+- `GET /orders/{id}/refunds`: Itemized refund records and reasons.
+- `GET /orders/{id}/shipping`: Carrier shipping details and package tracking links.
+- **Security Rule**: Chatty strictly forbids arbitrary order or customer ID lookups. The caller's billing email or phone number is always required and cryptographically matched against the order record before disclosing any order details.
+
+### 10. Coupons & Promotions
+- `GET /coupons?code={code}`: Verify a specific promo code, discount type (percentage vs. fixed), minimum spend, and expiry date.
+- `GET /coupons/{id}`: Individual coupon details.
+- **Anti-Enumeration Guard**: Listing all store coupons is strictly disabled for unauthenticated users to prevent discount code harvesting. Validation is informational; final coupon redemption is completed during checkout.
+
+---
+
+## Agent Tool Directives
+
+Chatty's AI agent uses four specialized tools to interact with your WooCommerce store in real time:
+
+1. `search_woocommerce_products`: Filters by price range (`min_price`, `max_price`), on-sale items (`on_sale=true`), featured items, categories, tags, SKUs, and sorting orders (`popularity`, `rating`, `date`, `price_asc`, `price_desc`).
+2. `get_woocommerce_store_info`: Inspects live store metadata across categories, tags, attributes, reviews, shipping rates, payment methods, and coupon verification.
+3. `lookup_woocommerce_order`: Verifies customer billing email/phone and displays verified order tracking cards with clickable carrier tracking links.
+4. `lookup_woocommerce_customer`: Looks up customer profiles with mandatory server-side email/phone ownership verification.
+
 <PageNav {...prevNext("/guides/woocommerce")} />
