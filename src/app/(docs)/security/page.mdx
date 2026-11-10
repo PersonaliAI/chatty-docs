@@ -111,6 +111,37 @@ Chatty provides in-chat payment checkout cards powered by Stripe, Lemon Squeezy,
 
 ---
 
+## High Reliability & Fault Tolerance (Enterprise Grade)
+
+Chatty includes carrier-grade availability controls to prevent cascading failures across distributed microservices:
+
+<CardGroup cols={2}>
+  <Card title="Circuit Breakers" icon="⚡">
+    Protects against downstream outages (OpenAI, Gemini, WooCommerce, Slack). Fast-fails calls when a service is degraded, preventing thread pool starvation.
+  </Card>
+  <Card title="Request Idempotency" icon="🔄">
+    Strict <code>Idempotency-Key</code> caching ensures retried network requests, payment checkouts, and customer webhooks never execute twice.
+  </Card>
+  <Card title="Zero Secret Leaks in Logs" icon="🛡️">
+    Structured JSON loggers scrub Bearer tokens, API keys (<code>chatty_sk_</code>, <code>ck_</code>, <code>cs_</code>, <code>xoxb-</code>), and credit cards in memory before outputting.
+  </Card>
+  <Card title="Deep Health & Readiness Probes" icon="🩺">
+    <code>/health/live</code>, <code>/health/ready</code>, and <code>/health/deep</code> provide instant health telemetry for Kubernetes, ECS, and APM monitors.
+  </Card>
+</CardGroup>
+
+### Kubernetes & Container Probes
+
+Chatty provides standard enterprise probes for zero-downtime rolling deploys:
+
+| Endpoint | Probe Type | Purpose |
+|---|---|---|
+| `GET /health/live` | **Liveness Probe** | Verifies process event loop responsiveness. |
+| `GET /health/ready` | **Readiness Probe** | Verifies database connectivity and circuit breaker states before routing traffic. |
+| `GET /health/deep` | **Diagnostics Probe** | Returns comprehensive latency, cache status, and circuit breaker metrics for APM synthetic monitors. |
+
+---
+
 ## Compliance, Privacy & GDPR
 
 Chatty empowers enterprise teams to meet global regulatory standards including GDPR, CCPA, and HIPAA privacy rules:

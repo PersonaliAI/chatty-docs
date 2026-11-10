@@ -12,6 +12,24 @@ Release notes for the Chatty platform and API.
 
 ## November 2026
 
+### 2026-11-10 — Enterprise-Grade Reliability, Circuit Breakers & Request Idempotency
+
+- **Distributed Circuit Breaker Engine**:
+  - Independent circuit breakers protect against cascading downstream outages across **Gemini**, **OpenAI**, **Anthropic**, **OpenRouter**, **WooCommerce**, and **Slack**.
+  - Fast-fails requests when an external API is degraded, preventing connection exhaustion and thread starvation.
+  - Automatic exponential backoff and half-open probing to smoothly restore healthy traffic.
+
+- **Request Idempotency Engine (`Idempotency-Key`)**:
+  - Full support for `Idempotency-Key` and `X-Idempotency-Key` headers on state-mutating requests (payments, lead capture, chat messages).
+  - Returns `409 Conflict` on concurrent duplicate in-flight requests and replays cached completed responses with `Idempotent-Replayed: true`.
+
+- **Structured JSON Logging & Automated Secret Scrubbing**:
+  - Enterprise log formatter emits single-line JSON logs with ISO timestamps, latency (`duration_ms`), client IP, and `request_id`.
+  - In-memory regex scrubbing ensures Bearer tokens, API keys (`chatty_sk_`, `ck_`, `cs_`, `xoxb-`), and credit card numbers never leak into stdout or log aggregators (Datadog, CloudWatch, ELK).
+
+- **Deep Health & Readiness Probes**:
+  - Standardized Kubernetes/Cloud Run endpoints: `/health/live` (liveness), `/health/ready` (database and circuit breaker readiness), and `/health/deep` (comprehensive APM telemetry).
+
 ### 2026-11-09 — Slack Real-Time Escalation Suite & Full Read-Only WooCommerce REST API Engine
 
 - **Bi-Directional Slack Escalation**:
