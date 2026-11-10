@@ -45,16 +45,16 @@ flowchart LR
 If you are connecting Chatty to an established WooCommerce store that already has hundreds or thousands of products and past customer orders, **you never need to add products or orders one by one**:
 
 <CardGroup cols={2}>
-  <Card title="1. Do I need to enter existing products manually?" icon="🚀">
+  <Card title="1. Do I need to enter existing products manually?" icon="rocket">
     **No.** The moment you connect your store, Chatty automatically starts a background **Bulk Catalog Sync** that paginates through your entire published WooCommerce catalog (`100` products per page), expanding variable products (sizes, colors, variant prices, SKUs), stock statuses, sale prices, and gallery images into your AI catalog.
   </Card>
-  <Card title="2. What happens to historical orders placed before Chatty?" icon="📦">
+  <Card title="2. What happens to historical orders placed before Chatty?" icon="package">
     **They work immediately.** Chatty does not require manual order imports. Whenever a customer asks *"Where is my order #1042?"*, Chatty queries your live WooCommerce REST API (`/wp-json/wc/v3/orders`) in real time, verifies the customer's billing email or phone number, and displays live fulfillment and carrier tracking status.
   </Card>
-  <Card title="3. Are webhooks configured automatically or manually?" icon="⚡">
+  <Card title="3. Are webhooks configured automatically or manually?" icon="zap">
     **Both are supported.** When you connect using **Read/Write** REST API keys (or click **Auto-Register Webhooks**), Chatty automatically registers `product.created`, `product.updated`, and `product.deleted` webhooks on your store. If you prefer **Read-Only** API keys, Chatty provides your copyable Webhook URL & HMAC Secret for manual setup.
   </Card>
-  <Card title="4. What if a price or stock level changes in WordPress?" icon="🔄">
+  <Card title="4. What if a price or stock level changes in WordPress?" icon="repeat">
     **Dual-Layer Freshness.** Signed webhooks update your indexed catalog within seconds of any edit in WordPress, and Chatty also performs a live bounded REST API check on matched products during chat so shoppers never see stale prices or out-of-stock items.
   </Card>
 </CardGroup>

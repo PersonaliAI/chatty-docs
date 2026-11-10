@@ -17,13 +17,13 @@ When a customer starts from WhatsApp, the booking link uses the canonical Chatty
 ## Supported Providers
 
 <CardGroup cols={3}>
-  <Card title="Google Calendar" icon="📅">
+  <Card title="Google Calendar" icon="calendar">
     Full two-way synchronization with Google Workspace. Generates unique <b>Google Meet</b> video links automatically.
   </Card>
-  <Card title="Microsoft 365" icon="📆">
+  <Card title="Microsoft 365" icon="calendar">
     Connects with Outlook Calendar and generates enterprise <b>Microsoft Teams</b> meeting rooms.
   </Card>
-  <Card title="Zoom Video" icon="📹">
+  <Card title="Zoom Video" icon="radio">
     Integrate Zoom to append password-protected meeting rooms to booked calendar events.
   </Card>
 </CardGroup>
@@ -92,7 +92,7 @@ When the AI detects scheduling intent, it renders an interactive booking widget 
 
 ```
 +-------------------------------------------------------------+
-| 📅 Schedule a 30-Min Consultation                          |
+| Schedule a 30-Min Consultation                          |
 +-------------------------------------------------------------+
 | Select Date:                                                |
 | [ Mon, Oct 14 ]  [ Tue, Oct 15 ]  [ Wed, Oct 16 ]           |
@@ -123,16 +123,16 @@ Once booked:
 Automated calendar booking widgets can be vulnerable to automated spam bots, fake email submissions, and malicious calendar flooding. Chatty provides **4 concrete anti-abuse defenses** located in the Chatty Dashboard under **Bot Settings &rarr; Calendar Scheduling &rarr; Abuse & Spam Protection** (all optional and disabled by default):
 
 <CardGroup cols={2}>
-  <Card title="Email OTP Verification" icon="🔒">
+  <Card title="Email OTP Verification" icon="lock">
     <b>Strongest Defense:</b> Dispatches a secure 6-digit one-time passcode to the visitor's email inbox. The AI assistant requires the visitor to enter the correct code in the chat before finalizing the calendar reservation.
   </Card>
-  <Card title="Block Disposable Emails" icon="🛡️">
+  <Card title="Block Disposable Emails" icon="shield">
     Instantly detects and rejects burner/throwaway email providers (e.g. `@mailinator.com`, `@tempmail.com`, `@guerrillamail.com`, `@10minutemail.com`) to guarantee authentic contact channels.
   </Card>
-  <Card title="Limit 1 Active Booking" icon="⏱️">
+  <Card title="Limit 1 Active Booking" icon="clock">
     Restricts each attendee email address to at most 1 active/upcoming meeting concurrently. Prevents single visitors from monopolizing your team's calendar availability.
   </Card>
-  <Card title="Require Business Email" icon="🏢">
+  <Card title="Require Business Email" icon="building">
     Filters out free consumer inboxes (`@gmail.com`, `@yahoo.com`, `@hotmail.com`, `@outlook.com`, `@icloud.com`) and mandates corporate/work domains (ideal for B2B qualification).
   </Card>
 </CardGroup>

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { TopNav } from "./TopNav";
 import { Sidebar } from "./Sidebar";
+import { TableOfContents, MobileTableOfContents } from "./TableOfContents";
 import clsx from "clsx";
 
 export function DocsLayout({ children }: { children: React.ReactNode }) {
@@ -22,19 +23,28 @@ export function DocsLayout({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="flex pt-[--topbar-h]">
-        {/* Desktop sidebar */}
+        {/* Desktop left sidebar */}
         <div className="hidden lg:flex flex-col fixed left-0 top-[--topbar-h] bottom-0 w-[--sidebar-w] border-r border-[--border] bg-[--bg-subtle]">
           <Sidebar />
         </div>
 
-        {/* Main content — generous padding so text breathes */}
-        <main className="flex-1 lg:ml-[--sidebar-w] min-w-0 overflow-x-hidden">
-          <div className="max-w-[740px] mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-10 md:py-12 xl:px-14 2xl:px-16">
+        {/* Center content + Right TOC container */}
+        <div className="flex-1 lg:ml-[--sidebar-w] min-w-0 flex justify-center">
+          <main className="w-full max-w-[780px] min-w-0 px-4 sm:px-6 md:px-8 py-6 sm:py-10 md:py-12">
+            <MobileTableOfContents />
             <div className="mdx-content">
               {children}
             </div>
-          </div>
-        </main>
+          </main>
+
+          {/* Desktop right table of contents sidebar */}
+          <aside
+            aria-label="On this page"
+            className="sticky top-[--topbar-h] hidden h-[calc(100vh-var(--topbar-h))] w-64 shrink-0 overflow-y-auto p-6 xl:block"
+          >
+            <TableOfContents />
+          </aside>
+        </div>
       </div>
     </div>
   );

@@ -15,16 +15,16 @@ At Chatty, security is not an afterthought — it is embedded into every layer o
 ## Security Pillars at a Glance
 
 <CardGroup cols={2}>
-  <Card title="Tenant Data Isolation" icon="🔒">
+  <Card title="Tenant Data Isolation" icon="lock">
     Strict PostgreSQL <b>Row-Level Security (RLS)</b> guarantees cross-tenant data leaks are physically impossible at the database engine level.
   </Card>
-  <Card title="Anti-SSRF IP Pinning" icon="🛡️">
+  <Card title="Anti-SSRF IP Pinning" icon="shield">
     All outbound URL crawlers resolve DNS pre-flight and block internal subnets (RFC 1918) and cloud metadata services.
   </Card>
-  <Card title="Cryptographic Integrity" icon="🔑">
+  <Card title="Cryptographic Integrity" icon="key">
     Asymmetric <b>JWKS</b> validation for user sessions, SHA-256 API key hashing, and AES-256-GCM encryption for customer BYOK keys.
   </Card>
-  <Card title="DoS & Stream Protection" icon="⚡">
+  <Card title="DoS & Stream Protection" icon="zap">
     Stream-capped 20MB upload ceilings and distributed Upstash Redis token-bucket rate limiters prevent resource exhaustion.
   </Card>
 </CardGroup>
@@ -116,13 +116,13 @@ Chatty provides in-chat payment checkout cards powered by Stripe, Lemon Squeezy,
 Chatty includes carrier-grade availability controls to prevent cascading failures across distributed microservices:
 
 <CardGroup cols={2}>
-  <Card title="Circuit Breakers" icon="⚡">
+  <Card title="Circuit Breakers" icon="zap">
     Protects against downstream outages (OpenAI, Gemini, WooCommerce, Slack). Fast-fails calls when a service is degraded, preventing thread pool starvation.
   </Card>
-  <Card title="Request Idempotency" icon="🔄">
+  <Card title="Request Idempotency" icon="repeat">
     Strict <code>Idempotency-Key</code> caching ensures retried network requests, payment checkouts, and customer webhooks never execute twice.
   </Card>
-  <Card title="Zero Secret Leaks in Logs" icon="🛡️">
+  <Card title="Zero Secret Leaks in Logs" icon="shield">
     Structured JSON loggers scrub Bearer tokens, API keys (<code>chatty_sk_</code>, <code>ck_</code>, <code>cs_</code>, <code>xoxb-</code>), and credit cards in memory before outputting.
   </Card>
   <Card title="Deep Health & Readiness Probes" icon="🩺">

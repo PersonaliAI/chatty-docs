@@ -399,16 +399,16 @@ Chatty provides production-ready webhook endpoints for receiving events from thi
 ## Best Practices & Security Checklist
 
 <CardGroup cols={2}>
-  <Card title="Acknowledge Immediately" icon="⚡">
+  <Card title="Acknowledge Immediately" icon="zap">
     Return an HTTP `200 OK` response within 10 seconds. Offload processing to a background job queue (Redis, Celery, SQS, BullMQ).
   </Card>
-  <Card title="Always Validate Signatures" icon="🔒">
+  <Card title="Always Validate Signatures" icon="lock">
     Reject any request that fails `X-Chatty-Signature` verification with an immediate `401 Unauthorized`.
   </Card>
-  <Card title="Ensure Idempotency" icon="🔁">
+  <Card title="Ensure Idempotency" icon="repeat">
     Network retries may cause duplicate delivery attempts. Use the event payload `delivery_id` or `session_id` + `timestamp` as an idempotency key.
   </Card>
-  <Card title="SSRF Protection" icon="🛡️">
+  <Card title="SSRF Protection" icon="shield">
     Chatty validates outbound destination IPs and pins DNS connections to prevent internal network and loopback probing.
   </Card>
 </CardGroup>

@@ -25,12 +25,12 @@ sequenceDiagram
   Chatty->>Chatty: Flag session (needs_attention: true)
   Chatty->>Slack: Dispatch Block Kit Escalation Card (Urgent)
   Note over Slack: Shows channel badge, customer info, reason & buttons
-  Agent->>Slack: Click "🙋‍♂️ Take Over (Pause AI)"
+  Agent->>Slack: Click "Take Over (Pause AI)"
   Slack->>Chatty: POST /api/webhooks/slack/{bot_id}/interactions
   Chatty->>Chatty: Pause AI & Assign to Agent
   Chatty-->>Slack: Update card: "Agent Sarah took over"
   Agent->>Chatty: Live chat with customer in Chatty Inbox
-  Agent->>Slack: Click "✅ Mark Resolved"
+  Agent->>Slack: Click "Mark Resolved"
   Slack->>Chatty: Update session status to "resolved" & unpause AI
 ```
 
@@ -39,22 +39,22 @@ sequenceDiagram
 ## Key Capabilities
 
 <CardGroup cols={2}>
-  <Card title="Rich Block Kit Escalation Cards" icon="🚨">
+  <Card title="Rich Block Kit Escalation Cards" icon="shield">
     Instant Slack notifications whenever a customer escalates. Displays customer name, email, omnichannel source badge (Live Chat, WhatsApp, Email, Voice, etc.), ticket ID, priority badge, and the conversation's latest message.
   </Card>
-  <Card title="1-Click Interactive Takeover" icon="🙋‍♂️">
+  <Card title="1-Click Interactive Takeover" icon="takeover">
     Support agents can click **Take Over (Pause AI)** directly from Slack. Chatty pauses the AI engine, sets status to open, and assigns the agent name immediately.
   </Card>
-  <Card title="1-Click Ticket Resolution" icon="✅">
+  <Card title="1-Click Ticket Resolution" icon="check">
     Once an issue is resolved, click **Mark Resolved** right inside Slack. Chatty updates the session status, unpauses the AI, and logs the agent's name.
   </Card>
-  <Card title="Flow Builder Slack Action Nodes" icon="⚡">
+  <Card title="Flow Builder Slack Action Nodes" icon="zap">
     Trigger custom Slack notifications inside Visual Flow Builder (`action.slack`) to notify specific sales or escalation channels with variable templates like `{{data.name}}` and `{{data.email}}`.
   </Card>
-  <Card title="Bi-directional Slack Events Streaming" icon="🔄">
+  <Card title="Bi-directional Slack Events Streaming" icon="repeat">
     Subscribe your Slack App to receive channel messages and `@mentions`, routing questions directly into the Chatty Omnichannel Inbox.
   </Card>
-  <Card title="Cryptographic HMAC Security" icon="🛡️">
+  <Card title="Cryptographic HMAC Security" icon="shield">
     All incoming Slack webhooks and interactivity payloads are cryptographically verified using `v0=HMAC-SHA256` signatures and timestamp replay guards.
   </Card>
 </CardGroup>
@@ -126,7 +126,7 @@ You can dispatch targeted Slack alerts at any point in your automation workflows
 3. Configure the destination channel (e.g. `#vip-sales`) and message template:
 
 ```text
-🚨 High-Value Lead Alert!
+High-Value Lead Alert!
 Name: {{data.name}}
 Email: {{data.email}}
 Company: {{data.company}}
@@ -143,10 +143,10 @@ Chatty automatically triggers a Slack escalation alert under any of the followin
 
 | Trigger | Condition | Slack Card Priority |
 |---|---|---|
-| **Human Request** | Visitor says "talk to human", "real person", "agent please" | `🚨 URGENT` |
+| **Human Request** | Visitor says "talk to human", "real person", "agent please" | `URGENT` |
 | **Negative Sentiment** | Sentiment detector flags sustained frustration, anger, or repeated misunderstandings | `⚠️ HIGH` |
 | **Split Shipment** | E-commerce order has items shipping separately across multiple carriers | `⚠️ HIGH` |
 | **Partial Refund** | E-commerce order has partial refund lines requiring staff review | `⚠️ HIGH` |
-| **SLA Risk** | Unanswered customer message approaches escalation threshold | `🚨 URGENT` |
+| **SLA Risk** | Unanswered customer message approaches escalation threshold | `URGENT` |
 
 <PageNav {...prevNext("/guides/slack")} />

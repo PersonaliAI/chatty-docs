@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navigation } from "@/lib/navigation";
+import { ExternalLink } from "lucide-react";
 import clsx from "clsx";
 
 export function Sidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => void }) {
@@ -53,16 +54,19 @@ export function Sidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () =>
           </a>
         )}
         <a href="https://chatty.personaliai.com/dashboard" target="_blank" rel="noreferrer"
-          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[--text-muted] hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
-          <span className="text-xs">&#8599;</span> Dashboard
+          className="flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] text-[--text-muted] hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
+          <span>Dashboard</span>
+          <ExternalLink size={12} className="text-[--text-subtle]" />
         </a>
         <a href="https://chatty.personaliai.com" target="_blank" rel="noreferrer"
-          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[--text-muted] hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
-          <span className="text-xs">&#8599;</span> chatty.personaliai.com
+          className="flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] text-[--text-muted] hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
+          <span>chatty.personaliai.com</span>
+          <ExternalLink size={12} className="text-[--text-subtle]" />
         </a>
         <a href="https://api.chatty.personaliai.com/docs" target="_blank" rel="noreferrer"
-          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[--text-muted] hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
-          <span className="text-xs">&#8599;</span> Swagger UI
+          className="flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] text-[--text-muted] hover:bg-[--bg-muted] hover:text-[--text] transition-colors">
+          <span>Swagger UI</span>
+          <ExternalLink size={12} className="text-[--text-subtle]" />
         </a>
       </div>
     </aside>

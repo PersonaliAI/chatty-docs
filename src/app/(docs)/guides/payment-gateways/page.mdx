@@ -24,16 +24,16 @@ Whether you process payments with **Stripe**, **Polar.sh**, **Lemon Squeezy**, o
 ## Supported Gateways
 
 <CardGroup cols={2}>
-  <Card title="Stripe" icon="💳">
+  <Card title="Stripe" icon="card">
     Direct card processing, Apple Pay, Google Pay, SEPA, and 40+ payment methods via Stripe Hosted Checkout. Supports 1-click automatic webhook registration.
   </Card>
-  <Card title="Polar.sh" icon="🐻">
+  <Card title="Polar.sh" icon="polar">
     Developer-first Merchant of Record for SaaS tiers, digital products, license keys, and recurring subscriptions. Supports Organization Access Tokens (`polar_oat_...`) and automatic webhooks.
   </Card>
-  <Card title="Lemon Squeezy" icon="🍋">
+  <Card title="Lemon Squeezy" icon="lemon">
     Merchant of Record (MoR) platform handling global sales tax, EU VAT, invoicing, and cross-border digital compliance automatically.
   </Card>
-  <Card title="PayPal" icon="🅿️">
+  <Card title="PayPal" icon="paypal">
     PayPal balance, credit/debit cards, and Pay Later through a hosted PayPal Orders v2 approval flow with automatic webhook registration.
   </Card>
 </CardGroup>
@@ -79,11 +79,11 @@ All AI payment rules and safety guardrails live directly inside **Dashboard → 
   </Accordion>
   <Accordion title="3. AI Payment & Checkout Directives (Custom Rules & Presets)">
     Provide natural-language commercial rules that are injected directly into the AI agent's system prompt whenever payment tools are active. You can also click any of the **Quick-Insert Presets**:
-    - 🛡️ **Require Lead Info First**: Always collect Full Name, Business Email, and Phone before generating a checkout link.
-    - 🏷️ **10% Courtesy Discount Cap**: Authorize up to a 10% courtesy discount only if the visitor objects to price.
-    - 💼 **Escalate Deals > $500**: Invite enterprise buyers to book a strategy call rather than sending a self-serve link.
-    - 🔄 **14-Day Refund Guarantee**: Proactively mention your refund policy before checkout.
-    - ⚡ **Instant Order Confirmation**: Acknowledge payment completion and inform the buyer that their receipt was emailed.
+    - **Require Lead Info First**: Always collect Full Name, Business Email, and Phone before generating a checkout link.
+    - **10% Courtesy Discount Cap**: Authorize up to a 10% courtesy discount only if the visitor objects to price.
+    - **Escalate Deals > $500**: Invite enterprise buyers to book a strategy call rather than sending a self-serve link.
+    - **14-Day Refund Guarantee**: Proactively mention your refund policy before checkout.
+    - **Instant Order Confirmation**: Acknowledge payment completion and inform the buyer that their receipt was emailed.
   </Accordion>
 </AccordionGroup>
 
@@ -157,7 +157,7 @@ You can customize and preview your transactional order emails from two convenien
 ### Resending Receipts or Emailing Status Updates Manually
 
 In **Dashboard → Orders & Sales**:
-1. Click the **Mail icon (`✉️`)** on any transaction row to immediately send or resend the current receipt/status email to the customer.
+1. Click the **Mail icon (``)** on any transaction row to immediately send or resend the current receipt/status email to the customer.
 2. Or click any transaction row to open the **Transaction Dossier** drawer, enter or update the recipient email address under **Customer Email Dispatch**, and click **Send Receipt Email**.
 3. Clicking **Mark Paid & Email Receipt** or **Mark Refunded & Email** inside the drawer updates the audit status and automatically dispatches the corresponding email notification to the buyer.
 

@@ -26,8 +26,8 @@ You do **not** need to copy-paste WordPress pages or blog posts one by one into 
 1. Open **Chatty Dashboard → Integrations → WordPress Content & KB**.
 2. Enter your **WordPress Website URL** (e.g., `https://yourwebsite.com`).
 3. Choose which content types to train:
-   - ✅ **Train AI on Published Pages** (`/wp-json/wp/v2/pages` — About, Pricing, Services, FAQ, Policies)
-   - ✅ **Train AI on Blog Posts & Articles** (`/wp-json/wp/v2/posts` — Guides, News, Documentation, Tutorials)
+   - **Train AI on Published Pages** (`/wp-json/wp/v2/pages` — About, Pricing, Services, FAQ, Policies)
+   - **Train AI on Blog Posts & Articles** (`/wp-json/wp/v2/posts` — Guides, News, Documentation, Tutorials)
 4. *(Optional)* If your WordPress REST API is restricted behind authentication, click **+ Optional: Add WP Application Password** and enter your WordPress Username and an Application Password generated under **WordPress Admin → Users → Profile → Application Passwords**.
 5. Click **Connect & Train Knowledge Base**.
 
@@ -99,13 +99,13 @@ add_action('save_post', function ($post_id, $post, $update) {
 To embed the floating Chatty widget or inline chat window on your WordPress site, use the **Official WordPress Plugin** found under **Dashboard → Integrations → Embed Chatbot on Websites → WordPress**:
 
 <CardGroup cols={2}>
-  <Card title="Method A: Plugin Directory" icon="🔌">
+  <Card title="Method A: Plugin Directory" icon="plug">
     1. Navigate to <b>Plugins &rarr; Add New Plugin</b> in your WP Admin.<br/>
     2. Search for <code>PersonaliAI Customer Support Chatbot</code>.<br/>
     3. Click <b>Install Now</b>, then <b>Activate</b>.<br/>
     <a href="https://wordpress.org/plugins/personaliai-customer-support-chatbot" target="_blank" rel="noopener noreferrer" className="text-xs text-orange-500 font-semibold underline mt-2 block">View on WordPress.org &rarr;</a>
   </Card>
-  <Card title="Method B: Shortcode Embeds" icon="🧩">
+  <Card title="Method B: Shortcode Embeds" icon="plug">
     Embed an inline chat window inside any Gutenberg block, Elementor section, or Divi layout:<br/>
     <code>[personaliai_chat inline="true" height="650px" width="100%"]</code>
   </Card>
